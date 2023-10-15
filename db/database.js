@@ -14,4 +14,16 @@ const pool = new Pool({
   ssl: isProduction ? { rejectUnauthorized: false } : null,
 });
 
-module.exports = pool;
+const queries = {
+    getAllProperties: () => {
+        return pool.query('SELECT * FROM property');
+    },
+    insertProperty: (address) => {
+        return pool.query('INSERT INTO property (address) VALUES ($1)', [address]);
+    },
+};
+
+module.exports = {
+    pool,
+    queries
+};
