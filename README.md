@@ -7,9 +7,7 @@ The server side APIs which power dakoo-rentals.
 - [Getting Started with PostgreSQL Locally](#getting-started-with-postgresql-locally)
   - [Starting Postgres](#starting-postgres)
   - [Creating Database and User](#creating-database-and-user)
-- [Running Service](#running-service)
-  - [Local Run](#local-run)
-  - [Hosted Run](#hosted-run)
+- [Sample Curl Commands](#sample-curl-commands)
 
 ## Getting Started with PostgreSQL Locally
 
@@ -42,19 +40,11 @@ PG_PASSWORD=your_password
 PG_PORT=5432
 ```
 
-## Running Service
+## Sample Curl Commands
 
-### Local Run
 ```sh
-npm start
 curl -X POST http://localhost:3000/properties -H "Content-Type: application/json" -d '{"address": "123 Main St"}'
 curl http://localhost:3000/properties
-```
-
-### Hosted Run
-```sh
-git push
-# Wait for deployment
-curl -X POST https://dakoo-rentals-server-a20f6c2bf881.herokuapp.com/properties -H "Content-Type: application/json" -d '{"address": "123 Main St"}'
-curl https://dakoo-rentals-server-a20f6c2bf881.herokuapp.com/properties
+curl http://localhost:3000/properties/3
+curl -X DELETE http://localhost:3000/properties/3
 ```

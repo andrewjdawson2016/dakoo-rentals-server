@@ -47,41 +47,11 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-router.get('/:address', async (req, res) => {
-  const { address } = req.params;
-  
-  try {
-    const result = await queries.getPropertyByAddress(address);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Property not found' });
-    }
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
 router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   
   try {
     const result = await queries.deletePropertyById(id);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: 'Property not found' });
-    }
-    res.status(204).send();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-router.delete('/:address', async (req, res) => {
-  const { address } = req.params;
-  
-  try {
-    const result = await queries.deletePropertyByAddress(address);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Property not found' });
     }

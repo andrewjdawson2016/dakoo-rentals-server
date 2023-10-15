@@ -26,12 +26,6 @@ const queries = {
     },
     getPropertyById: (id) => {
         return pool.query('SELECT * FROM property WHERE id = $1', [id]);
-    },
-    deletePropertyByAddress: (address) => {
-        return pool.query('DELETE FROM property WHERE address = $1', [address]);
-    },
-    getPropertyByAddress: (address) => {
-        return pool.query('SELECT * FROM property WHERE address = $1', [address]);
     }
 };
 
