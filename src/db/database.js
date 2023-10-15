@@ -26,6 +26,19 @@ const queries = {
     },
     getPropertyById: (id) => {
         return pool.query('SELECT * FROM property WHERE id = $1', [id]);
+    },
+    getAllLeases: () => {
+        return pool.query('SELECT * FROM lease');
+    },
+    getLeaseById: (id) => {
+        return pool.query('SELECT * FROM lease WHERE id = $1', [id]);
+    },
+    insertLease: (property_id, start_date, end_date, price_per_month) => {
+        return pool.query('INSERT INTO lease (property_id, start_date, end_date, price_per_month) VALUES ($1, $2, $3, $4)', 
+          [property_id, start_date, end_date, price_per_month]);
+    },
+    deleteLeaseById: (id) => {
+        return pool.query('DELETE FROM lease WHERE id = $1', [id]);
     }
 };
 
