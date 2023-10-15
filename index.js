@@ -8,7 +8,7 @@ const PORT = process.env.PORT || 3000;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.post('/addProperty', (req, res) => {
+app.post('/properties', (req, res) => {
   const { address } = req.body;
   
   if (!address) {
@@ -25,6 +25,16 @@ app.post('/addProperty', (req, res) => {
       console.error('Error executing query', err.stack);
       res.status(500).json({ error: 'Internal Server Error' });
     });
+});
+
+app.get('/properties', async (req, res) => {
+  try {
+    const result = await getAllProperties();
+    res.json(result.rows);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
 });
 
 app.listen(PORT, () => {
