@@ -8,6 +8,8 @@ The server side APIs which power dakoo-rentals.
   - [Starting Postgres](#starting-postgres)
   - [Creating Database and User](#creating-database-and-user)
 - [Running Service](#running-service)
+  - [Local Run](#local-run)
+  - [Hosted Run](#hosted-run)
 
 ## Getting Started with PostgreSQL Locally
 
