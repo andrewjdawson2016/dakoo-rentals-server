@@ -48,6 +48,7 @@ PG_PORT=5432
 ```sh
 npm start
 curl -X POST http://localhost:3000/properties -H "Content-Type: application/json" -d '{"address": "123 Main St"}'
+curl http://localhost:3000/properties
 ```
 
 ### Hosted Run
@@ -55,4 +56,5 @@ curl -X POST http://localhost:3000/properties -H "Content-Type: application/json
 git push
 # Wait for deployment
 curl -X POST https://dakoo-rentals-server-a20f6c2bf881.herokuapp.com/properties -H "Content-Type: application/json" -d '{"address": "123 Main St"}'
+curl https://dakoo-rentals-server-a20f6c2bf881.herokuapp.com/properties
 ```
