@@ -21,7 +21,20 @@ const queries = {
     insertProperty: (address) => {
         return pool.query('INSERT INTO property (address) VALUES ($1)', [address]);
     },
+    deletePropertyById: (id) => {
+        return pool.query('DELETE FROM property WHERE id = $1', [id]);
+    },
+    getPropertyById: (id) => {
+        return pool.query('SELECT * FROM property WHERE id = $1', [id]);
+    },
+    deletePropertyByAddress: (address) => {
+        return pool.query('DELETE FROM property WHERE address = $1', [address]);
+    },
+    getPropertyByAddress: (address) => {
+        return pool.query('SELECT * FROM property WHERE address = $1', [address]);
+    }
 };
+
 
 module.exports = {
     pool,
