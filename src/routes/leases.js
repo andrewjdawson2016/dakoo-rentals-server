@@ -91,21 +91,23 @@ const createLeaseWithNoteAndEvents = async (property_id, start_date, end_date, p
 
 const getLeaseEvents = (startDate, endDate) => {
     const eventDates = [
-        { date: startDate, description: 'start of lease' },
-        { date: endDate, description: 'end of lease' },
+        { date: startDate.toISOString(), description: 'start of lease' },
+        { date: endDate.toISOString(), description: 'end of lease' },
     ];
     const sixMonthsBeforeEnd = new Date(endDate);
     sixMonthsBeforeEnd.setMonth(sixMonthsBeforeEnd.getMonth() - 6);
 
     const twoMonthsBeforeEnd = new Date(endDate);
+    console.log("twoMonthsBeforeEnd: ", twoMonthsBeforeEnd)
     twoMonthsBeforeEnd.setMonth(twoMonthsBeforeEnd.getMonth() - 2);
+    console.log("after sub: ", twoMonthsBeforeEnd)
 
     const oneMonthBeforeEnd = new Date(endDate);
     oneMonthBeforeEnd.setMonth(oneMonthBeforeEnd.getMonth() - 1);
 
-    if (sixMonthsBeforeEnd > startDate) eventDates.push({date: sixMonthsBeforeEnd, description: 'send renewal option at 6 months'});
-    if (twoMonthsBeforeEnd > startDate) eventDates.push({date: twoMonthsBeforeEnd, description: 'send renewal reminder at 2 months'});
-    if (oneMonthBeforeEnd > startDate) eventDates.push({date: oneMonthBeforeEnd, description: 'renewal deadline'});
+    if (sixMonthsBeforeEnd > startDate) eventDates.push({date: sixMonthsBeforeEnd.toISOString(), description: 'send renewal option at 6 months'});
+    if (twoMonthsBeforeEnd > startDate) eventDates.push({date: twoMonthsBeforeEnd.toISOString(), description: 'send renewal reminder at 2 months'});
+    if (oneMonthBeforeEnd > startDate) eventDates.push({date: oneMonthBeforeEnd.toISOString(), description: 'renewal deadline'});
 
     return eventDates;
 };
