@@ -28,5 +28,6 @@ CREATE TABLE lease_event (
     id SERIAL PRIMARY KEY,
     lease_id INT NOT NULL REFERENCES lease(id),
     due_date DATE NOT NULL,
-    execution_date DATE
+    execution_date DATE,
+    description VARCHAR(255) NOT NULL
 );

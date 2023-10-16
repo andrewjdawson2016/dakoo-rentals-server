@@ -1,5 +1,5 @@
 const express = require('express');
-const { queries } = require("../db/database");
+const { pool, queries } = require("../db/database");
 
 const router = express.Router();
 
@@ -9,7 +9,7 @@ router.post('/', (req, res) => {
 
     createLeaseWithNoteAndEvents(property_id, start_date, end_date, price_per_month, note)
     .then((leaseId) => {
-        res.status(201).json({ message: 'Lease (and note) created successfully.', leaseId });
+        res.status(201).json({ message: 'Lease created successfully.', leaseId });
     })
     .catch((err) => {
         console.error(err);
@@ -74,10 +74,10 @@ const createLeaseWithNoteAndEvents = async (property_id, start_date, end_date, p
             await pool.query(noteQueryText, noteValues);
         }
 
-        const eventDates = getLeaseEventDates(new Date(start_date), new Date(end_date));
-        for (let dueDate of eventDates) {
-            const eventQueryText = 'INSERT INTO lease_event (lease_id, due_date) VALUES ($1, $2)';
-            const eventValues = [leaseId, dueDate];
+        const events = getLeaseEvents(new Date(start_date), new Date(end_date));
+        for (let event of events) {
+            const eventQueryText = 'INSERT INTO lease_event (lease_id, due_date, description) VALUES ($1, $2, $3)';
+            const eventValues = [leaseId, event.date, event.description];
             await pool.query(eventQueryText, eventValues);
         }
 
@@ -89,8 +89,11 @@ const createLeaseWithNoteAndEvents = async (property_id, start_date, end_date, p
     }
 };
 
-const getLeaseEventDates = (startDate, endDate) => {
-    const eventDates = [startDate, endDate];
+const getLeaseEvents = (startDate, endDate) => {
+    const eventDates = [
+        { date: startDate, description: 'start of lease' },
+        { date: endDate, description: 'end of lease' },
+    ];
     const sixMonthsBeforeEnd = new Date(endDate);
     sixMonthsBeforeEnd.setMonth(sixMonthsBeforeEnd.getMonth() - 6);
 
@@ -100,9 +103,9 @@ const getLeaseEventDates = (startDate, endDate) => {
     const oneMonthBeforeEnd = new Date(endDate);
     oneMonthBeforeEnd.setMonth(oneMonthBeforeEnd.getMonth() - 1);
 
-    if (sixMonthsBeforeEnd > startDate) eventDates.push(sixMonthsBeforeEnd);
-    if (twoMonthsBeforeEnd > startDate) eventDates.push(twoMonthsBeforeEnd);
-    if (oneMonthBeforeEnd > startDate) eventDates.push(oneMonthBeforeEnd);
+    if (sixMonthsBeforeEnd > startDate) eventDates.push({date: sixMonthsBeforeEnd, description: 'send renewal option at 6 months'});
+    if (twoMonthsBeforeEnd > startDate) eventDates.push({date: twoMonthsBeforeEnd, description: 'send renewal reminder at 2 months'});
+    if (oneMonthBeforeEnd > startDate) eventDates.push({date: oneMonthBeforeEnd, description: 'renewal deadline'});
 
     return eventDates;
 };
