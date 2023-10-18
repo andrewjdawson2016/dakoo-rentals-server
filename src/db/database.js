@@ -75,53 +75,6 @@ const createLeaseWithNoteAndEvents = async (property_id, start_date, end_date, p
     }
 };
 
-// TODO: write tests for this
-const getLeaseEvents = (startDate, endDate) => {
-    const eventDates = [
-        { date: formatDateToYYYYMMDD(startDate), description: 'start of lease' },
-        { date: formatDateToYYYYMMDD(endDate), description: 'end of lease' },
-    ];
-    const sixMonthsBeforeEnd = subMonths(endDate, 6);
-    const twoMonthsBeforeEnd = subMonths(endDate, 2);
-    const oneMonthBeforeEnd = subMonths(endDate, 1);
-
-    if (sixMonthsBeforeEnd > startDate) eventDates.push({date: formatDateToYYYYMMDD(sixMonthsBeforeEnd), description: 'send renewal option at 6 months'});
-    if (twoMonthsBeforeEnd > startDate) eventDates.push({date: formatDateToYYYYMMDD(twoMonthsBeforeEnd), description: 'send renewal reminder at 2 months'});
-    if (oneMonthBeforeEnd > startDate) eventDates.push({date: formatDateToYYYYMMDD(oneMonthBeforeEnd), description: 'renewal deadline'});
-
-    return eventDates;
-};
-
-const getDaysInMonth = (inputDate) => {
-    return new Date(inputDate.getFullYear(), inputDate.getMonth() + 1, 0).getDate()
-};
-
-const isLastDayOfMonth = (inputDate) => {
-    const date = new Date(inputDate);
-    date.setDate(date.getDate() + 1);
-    return date.getDate() === 1;
-  };
-
-const subMonths = (inputDate, months) => {
-  const date = new Date(inputDate)
-  date.setDate(1)
-  date.setMonth(date.getMonth() - months)
-  const lastDay = getDaysInMonth(date);
-  if (isLastDayOfMonth(inputDate)) {
-    date.setDate(lastDay);
-  } else {
-    date.setDate(Math.min(inputDate.getDate(), lastDay));
-  }
-  return date
-}
-
-const formatDateToYYYYMMDD = (inputDate) => {
-    const year = date.getFullYear();
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    return `${year}-${month}-${day}`;
-}
-
 module.exports = {
     pool,
     propertyQueries,
