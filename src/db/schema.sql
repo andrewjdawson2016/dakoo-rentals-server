@@ -21,7 +21,7 @@ CREATE TABLE tenant (
 CREATE TABLE lease_note (
     id SERIAL PRIMARY KEY,
     lease_id INT NOT NULL REFERENCES lease(id),
-    note TEXT
+    note TEXT NOT NULL
 );
 
 CREATE TABLE lease_event (
@@ -31,3 +31,6 @@ CREATE TABLE lease_event (
     execution_date DATE,
     description VARCHAR(255) NOT NULL
 );
+
+CREATE INDEX idx_lease_event_due_date ON lease_event(due_date);
+CREATE INDEX idx_lease_start_date ON lease(start_date);

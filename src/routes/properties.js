@@ -1,5 +1,5 @@
 const express = require('express');
-const { queries } = require('../db/database');
+const { propertyQueries } = require('../db/database');
 
 const router = express.Router();
 
@@ -10,7 +10,7 @@ router.post('/', (req, res) => {
     return res.status(400).json({ error: 'Address is required' });
   }
 
-  queries.insertProperty(address)
+  propertyQueries.insertProperty(address)
     .then(() => {
       res.status(201).json({
         message: 'Property added successfully',
@@ -24,7 +24,7 @@ router.post('/', (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const result = await queries.getAllProperties();
+    const result = await propertyQueries.getAllProperties();
     res.json(result.rows);
   } catch (err) {
     console.error(err);
@@ -36,7 +36,7 @@ router.get('/:id', async (req, res) => {
   const { id } = req.params;
   
   try {
-    const result = await queries.getPropertyById(id);
+    const result = await propertyQueries.getPropertyById(id);
     if (result.rows.length === 0) {
       return res.status(404).json({ error: 'Property not found' });
     }
@@ -51,7 +51,7 @@ router.delete('/:id', async (req, res) => {
   const { id } = req.params;
   
   try {
-    const result = await queries.deletePropertyById(id);
+    const result = await propertyQueries.deletePropertyById(id);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Property not found' });
     }
