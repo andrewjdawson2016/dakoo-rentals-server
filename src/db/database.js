@@ -1,6 +1,5 @@
 require('dotenv').config();
 const { Pool } = require('pg');
-const { DateTime } = require("luxon");
 
 const isProduction = process.env.NODE_ENV === 'production';
 
