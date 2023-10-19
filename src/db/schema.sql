@@ -11,13 +11,6 @@ CREATE TABLE lease (
     price_per_month INT NOT NULL
 );
 
-CREATE TABLE tenant (
-    id SERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    lease_id INT NOT NULL REFERENCES lease(id)
-);
-
 CREATE TABLE lease_note (
     id SERIAL PRIMARY KEY,
     lease_id INT NOT NULL REFERENCES lease(id),
@@ -30,6 +23,13 @@ CREATE TABLE lease_event (
     due_date DATE NOT NULL,
     execution_date DATE,
     description VARCHAR(255) NOT NULL
+);
+
+CREATE TABLE tenant (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL UNIQUE,
+    lease_id INT NOT NULL REFERENCES lease(id)
 );
 
 CREATE INDEX idx_lease_event_due_date ON lease_event(due_date);
