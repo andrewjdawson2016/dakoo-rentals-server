@@ -21,7 +21,7 @@ router.post('/', (req, res) => {
 router.get('/', async (req, res) => {
   try {
     const result = await PropertyQueries.getAllProperties();
-    res.json(result.rows);
+    res.json(result);
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });

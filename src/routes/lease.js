@@ -4,9 +4,9 @@ const { LeaseQueries } = require('../db/datastores/lease');
 const router = express.Router();
 
 router.post('/', (req, res) => {
-    const { propertyId, startDate, endDate, pricePerMonth, isRenewal, note, tenants } = req.body;
+    const { property_id, start_date, end_date, price_per_month, is_renewal, note, tenants } = req.body;
 
-    createLease(propertyId, startDate, endDate, pricePerMonth, isRenewal, note, tenants)
+    LeaseQueries.createLease(property_id, start_date, end_date, price_per_month, is_renewal, note, tenants)
     .then((leaseId) => {
         res.status(201).json({ message: 'Lease created successfully.', leaseId });
     })

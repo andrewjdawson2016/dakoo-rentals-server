@@ -41,6 +41,7 @@ const PropertyQueries = {
             }
             properties.push(property);
         }
+        return properties
     }
 }
 

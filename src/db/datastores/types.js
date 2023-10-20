@@ -1,3 +1,5 @@
+const { DateTime } = require("luxon");
+
 class NotFoundError extends Error {
     constructor(message) {
         super(message);
@@ -36,8 +38,8 @@ class Lease {
     ) {
         this.id = id;
         this.property_id = property_id;
-        this.start_date = start_date;
-        this.end_date = end_date;
+        this.start_date = DateTime.fromISO(start_date.toISOString()).toISODate();
+        this.end_date = DateTime.fromISO(end_date.toISOString()).toISODate();
         this.price_per_month = price_per_month;
         this.is_renewal = is_renewal;
         this.previous_lease_id = previous_lease_id;
@@ -89,8 +91,8 @@ class LeaseEvent {
     constructor(id, lease_id, due_date, execution_date, description) {
         this.id = id;
         this.lease_id = lease_id;
-        this.due_date = due_date;
-        this.execution_date = execution_date;
+        this.due_date = DateTime.fromISO(due_date.toISOString()).toISODate();
+        this.execution_date = execution_date ? DateTime.fromISO(execution_date.toISOString()).toISODate() : '';
         this.description = description;
     }
 
