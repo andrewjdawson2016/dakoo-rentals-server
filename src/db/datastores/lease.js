@@ -55,6 +55,9 @@ const LeaseQueries = {
             await pool.query('ROLLBACK');
             throw err;
         }
+    },
+    deleteLeaseById: async (id) => {
+        return pool.query('DELETE FROM lease WHERE id = $1', [id]);
     }
 };
 
