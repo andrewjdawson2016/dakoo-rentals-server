@@ -1,7 +1,7 @@
-require('dotenv').config();
-const { Pool } = require('pg');
+require("dotenv").config();
+const { Pool } = require("pg");
 
-const isProduction = process.env.NODE_ENV === 'production';
+const isProduction = process.env.NODE_ENV === "production";
 
 const pool = new Pool({
   user: isProduction ? null : process.env.PG_USER,
@@ -14,5 +14,5 @@ const pool = new Pool({
 });
 
 module.exports = {
-    pool
+  pool,
 };
