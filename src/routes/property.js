@@ -1,16 +1,12 @@
 const express = require('express');
-const { propertyQueries } = require('../db/database');
+const { PropertyQueries } = require('../db/datastores/property');
 
 const router = express.Router();
 
 router.post('/', (req, res) => {
   const { address } = req.body;
-  
-  if (!address) {
-    return res.status(400).json({ error: 'Address is required' });
-  }
 
-  propertyQueries.insertProperty(address)
+  PropertyQueries.insertProperty(address)
     .then(() => {
       res.status(201).json({
         message: 'Property added successfully',
@@ -24,38 +20,8 @@ router.post('/', (req, res) => {
 
 router.get('/', async (req, res) => {
   try {
-    const result = await propertyQueries.getAllProperties();
+    const result = await PropertyQueries.getAllProperties();
     res.json(result.rows);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-router.get('/:id', async (req, res) => {
-  const { id } = req.params;
-  
-  try {
-    const result = await propertyQueries.getPropertyById(id);
-    if (result.rows.length === 0) {
-      return res.status(404).json({ error: 'Property not found' });
-    }
-    res.json(result.rows[0]);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Internal Server Error' });
-  }
-});
-
-router.delete('/:id', async (req, res) => {
-  const { id } = req.params;
-  
-  try {
-    const result = await propertyQueries.deletePropertyById(id);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: 'Property not found' });
-    }
-    res.status(204).send();
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Internal Server Error' });
