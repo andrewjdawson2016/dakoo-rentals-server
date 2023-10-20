@@ -1,9 +1,92 @@
 const express = require("express");
 const { LeaseQueries } = require("../db/datastores/lease");
+const Joi = require("@hapi/joi");
+const { DateTime } = require("luxon");
 
 const router = express.Router();
 
+const leaseSchema = Joi.object({
+  property_id: Joi.number().positive().required().messages({
+    "number.base": "Invalid property_id.",
+    "number.positive": "Invalid property_id.",
+    "any.required": "property_id is required.",
+  }),
+  start_date: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .required()
+    .messages({
+      "string.pattern.base": "start_date must be in YYYY-MM-DD format.",
+      "any.required": "start_date is required.",
+    }),
+  end_date: Joi.string()
+    .pattern(/^\d{4}-\d{2}-\d{2}$/)
+    .required()
+    .messages({
+      "string.pattern.base": "end_date must be in YYYY-MM-DD format.",
+      "any.required": "end_date is required.",
+    }),
+  price_per_month: Joi.number().positive().required().messages({
+    "number.base": "Invalid price_per_month.",
+    "number.positive": "Invalid price_per_month.",
+    "any.required": "price_per_month is required.",
+  }),
+  is_renewal: Joi.boolean().required().messages({
+    "boolean.base": "is_renewal must be a boolean.",
+    "any.required": "is_renewal is required.",
+  }),
+  note: Joi.string().optional(),
+  tenants: Joi.when("is_renewal", {
+    is: true,
+    then: Joi.any().forbidden(),
+    otherwise: Joi.array()
+      .min(1)
+      .items(
+        Joi.object({
+          name: Joi.string()
+            .pattern(/^[A-Z][a-z]+ [A-Z][a-z]+$/)
+            .required(),
+          email: Joi.string().email().required(),
+        }).required()
+      )
+      .required(),
+  }),
+});
+
+function validateNewLease(body) {
+  const validationResult = leaseSchema.validate(body);
+
+  if (validationResult.error) {
+    return validationResult;
+  }
+
+  if (
+    DateTime.fromISO(body.start_date).plus({ months: 1 }) >
+    DateTime.fromISO(body.end_date)
+  ) {
+    return {
+      error: {
+        details: [
+          {
+            message:
+              "start_date should come at least one month before end_date.",
+          },
+        ],
+      },
+    };
+  }
+
+  return validationResult;
+}
+
 router.post("/", (req, res) => {
+  const { error } = validateNewLease(req.body);
+
+  if (error) {
+    return res.status(400).json({
+      error: error.details[0].message,
+    });
+  }
+
   const {
     property_id,
     start_date,
@@ -13,73 +96,6 @@ router.post("/", (req, res) => {
     note,
     tenants,
   } = req.body;
-
-  if (typeof property_id !== "number" || property_id <= 0) {
-    return res.status(400).json({ error: "Invalid property_id." });
-  }
-
-  const startDate = DateTime.fromFormat(start_date, "yyyy-MM-dd");
-  const endDate = DateTime.fromFormat(end_date, "yyyy-MM-dd");
-  if (!startDate.isValid || !endDate.isValid) {
-    return res.status(400).json({
-      error: "Invalid start_date or end_date format. Use YYYY-MM-DD.",
-    });
-  }
-
-  if (startDate.plus({ months: 1 }) > endDate) {
-    return res.status(400).json({
-      error: "start_date should come at least one month before end_date.",
-    });
-  }
-
-  if (typeof price_per_month !== "number" || price_per_month <= 0) {
-    return res.status(400).json({ error: "Invalid price_per_month." });
-  }
-
-  if (typeof is_renewal !== "boolean") {
-    return res.status(400).json({ error: "is_renewal must be a boolean." });
-  }
-
-  if (is_renewal) {
-    if (tenants) {
-      return res.status(400).json({
-        error: "Tenants should not be provided when lease is a renewal.",
-      });
-    }
-  } else {
-    if (!tenants || tenants.length === 0) {
-      return res.status(400).json({
-        error: "Tenants must be provided when lease is not a renewal.",
-      });
-    }
-
-    for (let tenant of tenants) {
-      if (
-        !tenant.name ||
-        typeof tenant.name !== "string" ||
-        !tenant.email ||
-        typeof tenant.email !== "string"
-      ) {
-        return res
-          .status(400)
-          .json({ error: "Each tenant must have a valid name and email." });
-      }
-
-      const nameRegex = /^[A-Z][a-z]+ [A-Z][a-z]+$/;
-      if (!nameRegex.test(tenant.name)) {
-        return res.status(400).json({
-          error: `Invalid name format for tenant: ${tenant.name}. Expected format: "First Last".`,
-        });
-      }
-
-      const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
-      if (!emailRegex.test(tenant.email)) {
-        return res
-          .status(400)
-          .json({ error: `Invalid email format for tenant: ${tenant.email}.` });
-      }
-    }
-  }
 
   LeaseQueries.createLease(
     property_id,
@@ -114,4 +130,7 @@ router.delete("/:id", async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = {
+  router,
+  validateNewLease,
+};
