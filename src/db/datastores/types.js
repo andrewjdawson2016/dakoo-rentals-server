@@ -22,18 +22,41 @@ class Property {
 }
 
 class Lease {
-    constructor(id, property_id, start_date, end_date, price_per_month, leaseNotes = [], leaseEvents = []) {
+    constructor(
+        id, 
+        property_id, 
+        start_date, 
+        end_date, 
+        price_per_month, 
+        is_renewal,
+        previous_lease_id,
+        tenants = [], 
+        leaseNotes = [], 
+        leaseEvents = [],
+    ) {
         this.id = id;
         this.property_id = property_id;
         this.start_date = start_date;
         this.end_date = end_date;
         this.price_per_month = price_per_month;
+        this.is_renewal = is_renewal;
+        this.previous_lease_id = previous_lease_id;
+        this.tenants = tenants;
         this.leaseNotes = leaseNotes;
         this.leaseEvents = leaseEvents;
+    
     }
 
     static fromRow(row) {
-        return new Lease(row.id, row.property_id, row.start_date, row.end_date, row.price_per_month);
+        return new Lease(
+            row.id, 
+            row.property_id, 
+            row.start_date, 
+            row.end_date, 
+            row.price_per_month, 
+            row.is_renewal, 
+            row.previous_lease_id,
+        );
     }
 
     addLeaseNote(leaseNote) {
@@ -43,17 +66,22 @@ class Lease {
     addLeaseEvent(leaseEvent) {
         this.leaseEvents.push(leaseEvent);
     }
+
+    addTenant(tenant) {
+        this.tenants.push(tenant);
+    }
 }
 
 class LeaseNote {
-    constructor(id, lease_id, note) {
+    constructor(id, lease_id, note, created_at) {
         this.id = id;
         this.lease_id = lease_id;
         this.note = note;
+        this.created_at = created_at;
     }
 
     static fromRow(row) {
-        return new LeaseNote(row.id, row.lease_id, row.note);
+        return new LeaseNote(row.id, row.lease_id, row.note, row.created_at);
     }
 }
 

@@ -8,13 +8,16 @@ CREATE TABLE lease (
     property_id INT NOT NULL REFERENCES property(id) ON DELETE CASCADE,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
-    price_per_month INT NOT NULL
+    price_per_month INT NOT NULL,
+    is_renewal BOOLEAN NOT NULL DEFAULT false,
+    previous_lease_id INT REFERENCES lease(id) ON DELETE SET NULL
 );
 
 CREATE TABLE lease_note (
     id SERIAL PRIMARY KEY,
     lease_id INT NOT NULL REFERENCES lease(id) ON DELETE CASCADE,
-    note TEXT NOT NULL
+    note TEXT NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE lease_event (
@@ -28,8 +31,13 @@ CREATE TABLE lease_event (
 CREATE TABLE tenant (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL UNIQUE,
-    email VARCHAR(255) NOT NULL UNIQUE,
-    lease_id INT NOT NULL REFERENCES lease(id) ON DELETE CASCADE
+    email VARCHAR(255) NOT NULL UNIQUE
+);
+
+CREATE TABLE tenant_lease (
+    tenant_id INT NOT NULL REFERENCES tenant(id) ON DELETE CASCADE,
+    lease_id INT NOT NULL REFERENCES lease(id) ON DELETE CASCADE,
+    PRIMARY KEY (tenant_id, lease_id)
 );
 
 CREATE INDEX idx_lease_event_due_date ON lease_event(due_date);
