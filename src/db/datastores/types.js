@@ -6,13 +6,18 @@ class NotFoundError extends Error {
 }
 
 class Property {
-    constructor(id, address) {
+    constructor(id, address, leases = []) {
         this.id = id;
         this.address = address;
+        this.leases = leases;
     }
 
     static fromRow(row) {
         return new Property(row.id, row.address);
+    }
+
+    addLease(lease) {
+        this.leases.push(lease);
     }
 }
 

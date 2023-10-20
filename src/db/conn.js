@@ -3,7 +3,7 @@ const { Pool } = require('pg');
 
 const isProduction = process.env.NODE_ENV === 'production';
 
-const Pool = new Pool({
+const pool = new Pool({
   user: isProduction ? null : process.env.PG_USER,
   host: isProduction ? null : process.env.PG_HOST,
   database: isProduction ? null : process.env.PG_DATABASE,
@@ -14,5 +14,5 @@ const Pool = new Pool({
 });
 
 module.exports = {
-    Pool
+    pool
 };

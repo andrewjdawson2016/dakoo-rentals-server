@@ -1,39 +1,17 @@
 const { Lease, LeaseNote, LeaseEvent } = require("./types");
-const { Pool } = require("../conn");
+const { pool } = require("../conn");
+const { DateTime } = require("luxon");
 
 const LeaseQueries = {
-    getAllLeases: async () => {
-        const leases = [];
 
-        const leaseQueryResult = await Pool.query('SELECT * FROM lease');
-        for (const leaseRow of leaseQueryResult.rows) {
-            const lease = Lease.fromRow(leaseRow);
-
-            const leaseNoteQueryResult = await Pool.query('SELECT * FROM lease_note WHERE lease_id = $1', [lease.id]);
-            for (const noteRow of leaseNoteQueryResult.rows) {
-                const leaseNote = LeaseNote.fromRow(noteRow);
-                lease.addLeaseNote(leaseNote);
-            }
-
-            const leaseEventQueryResult = await Pool.query('SELECT * FROM lease_event WHERE lease_id = $1', [lease.id]);
-            for (const eventRow of leaseEventQueryResult.rows) {
-                const leaseEvent = LeaseEvent.fromRow(eventRow);
-                lease.addLeaseEvent(leaseEvent);
-            }
-
-            leases.push(lease);
-        }
-
-        return leases;
-    }
 };
 
-const createLeaseWithNoteAndEvents = async (property_id, start_date, end_date, price_per_month, note) => {
+const createLeaseWithNoteAndEvents = async (propertyId, startDate, endDate, pricePerMonth, note) => {
     await pool.query('BEGIN');
 
     try {
         const leaseQueryText = 'INSERT INTO lease(property_id, start_date, end_date, price_per_month) VALUES($1, $2, $3, $4) RETURNING id';
-        const leaseValues = [property_id, start_date, end_date, price_per_month];
+        const leaseValues = [propertyId, startDate, endDate, pricePerMonth];
         const leaseResult = await pool.query(leaseQueryText, leaseValues);
         const leaseId = leaseResult.rows[0].id;
 
@@ -43,13 +21,12 @@ const createLeaseWithNoteAndEvents = async (property_id, start_date, end_date, p
             await pool.query(noteQueryText, noteValues);
         }
 
-        const events = getLeaseEvents(new Date(start_date + "T00:00"), new Date(end_date + "T:00:00"));
+        const events = getLeaseEvents(startDate, endDate);
         for (let event of events) {
             const eventQueryText = 'INSERT INTO lease_event (lease_id, due_date, description) VALUES ($1, $2, $3)';
             const eventValues = [leaseId, event.date, event.description];
             await pool.query(eventQueryText, eventValues);
         }
-
         await pool.query('COMMIT');
         return leaseId;
     } catch (err) {
@@ -57,8 +34,6 @@ const createLeaseWithNoteAndEvents = async (property_id, start_date, end_date, p
         throw err;
     }
 };
-
-const { DateTime } = require("luxon");
 
 const getLeaseEvents = (startDateString, endDateString) => {
     const startDate = DateTime.fromISO(startDateString);
@@ -82,4 +57,4 @@ const getLeaseEvents = (startDateString, endDateString) => {
 
 module.exports = {
     getLeaseEvents
-  };
+};
