@@ -1,12 +1,12 @@
 const { pool } = require("../conn");
 
 const LeaseEventQueries = {
-  setExecutionDate: async (eventId, executionDate) => {
+  setExecutionDate: async (id, executionDate) => {
     try {
       const updateQuery = `UPDATE lease_event SET execution_date = $1 WHERE id = $2 RETURNING id, execution_date;`;
-      const result = await pool.query(updateQuery, [executionDate, eventId]);
+      const result = await pool.query(updateQuery, [executionDate, id]);
       if (result.rows.length === 0) {
-        throw new Error(`Lease event with ID ${eventId} not found.`);
+        throw new Error(`Lease event with ID ${id} not found.`);
       }
       return result.rows[0];
     } catch (error) {
