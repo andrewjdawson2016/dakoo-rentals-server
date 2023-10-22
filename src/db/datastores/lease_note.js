@@ -1,7 +1,7 @@
 const { pool } = require("../conn");
 
 const LeaseNoteQueries = {
-  insertLeaseNote: async (leaseId, note) => {
+  insert: async (leaseId, note) => {
     try {
       const insertQuery = `INSERT INTO lease_note (lease_id, note) VALUES ($1, $2) RETURNING id;`;
       const result = await pool.query(insertQuery, [leaseId, note]);
@@ -12,13 +12,13 @@ const LeaseNoteQueries = {
     }
   },
 
-  deleteLeaseNote: async (noteId) => {
+  delete: async (id) => {
     try {
       const deleteQuery = `DELETE FROM lease_note WHERE id = $1 RETURNING id;`;
-      const result = await pool.query(deleteQuery, [noteId]);
+      const result = await pool.query(deleteQuery, [id]);
 
       if (result.rows.length === 0) {
-        throw new Error(`Lease note with ID ${noteId} not found.`);
+        throw new Error(`Lease note with ID ${id} not found.`);
       }
       return result.rows[0].id;
     } catch (error) {

@@ -30,7 +30,7 @@ router.post("/", (req, res) => {
     });
   }
 
-  PropertyQueries.insertProperty(req.body.address)
+  PropertyQueries.insert(req.body.address)
     .then(() => {
       res.status(201).json({
         message: "Property added successfully",
@@ -46,13 +46,23 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const result = await PropertyQueries.deleteProperty(id);
+    const result = await PropertyQueries.delete(id);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Property not found" });
     }
     res.status(204).send();
   } catch (err) {
     console.error(err);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+router.get("/", async (req, res) => {
+  try {
+    const properties = await PropertyQueries.list();
+    res.status(200).json(properties);
+  } catch (err) {
+    console.error("Error executing query", err.stack);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });

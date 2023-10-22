@@ -97,7 +97,7 @@ router.post("/", (req, res) => {
     tenants,
   } = req.body;
 
-  LeaseQueries.createLease(
+  LeaseQueries.insert(
     property_id,
     start_date,
     end_date,
@@ -119,7 +119,7 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const result = await LeaseQueries.deleteLeaseById(id);
+    const result = await LeaseQueries.delete(id);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: "Lease not found" });
     }

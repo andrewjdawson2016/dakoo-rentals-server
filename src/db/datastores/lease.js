@@ -2,7 +2,7 @@ const { pool } = require("../conn");
 const { DateTime } = require("luxon");
 
 const LeaseQueries = {
-  createLease: async (
+  insert: async (
     propertyId,
     startDate,
     endDate,
@@ -74,7 +74,7 @@ const LeaseQueries = {
       throw err;
     }
   },
-  deleteLeaseById: async (id) => {
+  delete: async (id) => {
     return pool.query("DELETE FROM lease WHERE id = $1", [id]);
   },
 };

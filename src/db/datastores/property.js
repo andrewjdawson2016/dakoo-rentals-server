@@ -2,13 +2,13 @@ const { Property, Lease, LeaseEvent, LeaseNote, Tenant } = require("./types");
 const { pool } = require("../conn");
 
 const PropertyQueries = {
-  deleteProperty: async (id) => {
+  delete: async (id) => {
     return pool.query("DELETE FROM property WHERE id = $1", [id]);
   },
-  insertProperty: async (address) => {
+  insert: async (address) => {
     return pool.query("INSERT INTO property (address) VALUES ($1)", [address]);
   },
-  getAllProperties: async () => {
+  list: async () => {
     const properties = [];
     const selectPropertiesResult = await pool.query(
       "SELECT * FROM property ORDER BY address ASC"
