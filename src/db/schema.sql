@@ -10,7 +10,8 @@ CREATE TABLE lease (
     end_date DATE NOT NULL,
     price_per_month INT NOT NULL,
     is_renewal BOOLEAN NOT NULL DEFAULT false,
-    previous_lease_id INT REFERENCES lease(id) ON DELETE SET NULL
+    previous_lease_id INT REFERENCES lease(id) ON DELETE SET NULL,
+    CHECK (end_date > start_date)
 );
 
 CREATE TABLE lease_note (
@@ -25,7 +26,8 @@ CREATE TABLE lease_event (
     lease_id INT NOT NULL REFERENCES lease(id) ON DELETE CASCADE,
     due_date DATE NOT NULL,
     execution_date DATE,
-    description VARCHAR(10) NOT NULL CHECK (description IN ('START', 'SIX_MONTH', 'TWO_MONTH', 'ONE_MONTH', 'END'))
+    description VARCHAR(10) NOT NULL CHECK (description IN ('START', 'SIX_MONTH', 'TWO_MONTH', 'ONE_MONTH', 'END')),
+    CHECK (execution_date > due_date)
 );
 
 CREATE TABLE tenant (
