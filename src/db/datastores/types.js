@@ -31,7 +31,6 @@ class Lease {
     end_date,
     price_per_month,
     is_renewal,
-    previous_lease_id,
     tenants = [],
     leaseNotes = [],
     leaseEvents = []
@@ -42,7 +41,6 @@ class Lease {
     this.end_date = DateTime.fromISO(end_date.toISOString()).toISODate();
     this.price_per_month = price_per_month;
     this.is_renewal = is_renewal;
-    this.previous_lease_id = previous_lease_id;
     this.tenants = tenants;
     this.leaseNotes = leaseNotes;
     this.leaseEvents = leaseEvents;

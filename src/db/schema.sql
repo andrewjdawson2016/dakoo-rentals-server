@@ -10,7 +10,6 @@ CREATE TABLE lease (
     end_date DATE NOT NULL,
     price_per_month INT NOT NULL,
     is_renewal BOOLEAN NOT NULL DEFAULT false,
-    previous_lease_id INT REFERENCES lease(id) ON DELETE SET NULL,
     CHECK (end_date > start_date)
 );
 

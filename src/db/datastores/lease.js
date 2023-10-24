@@ -13,20 +13,15 @@ const LeaseQueries = {
   ) => {
     await pool.query("BEGIN");
 
-    const { previousLeaseId, currentTenants } = isRenewal
-      ? await getRenewalInfo(propertyId)
-      : { previousLeaseId: null, currentTenants: [] };
-
     try {
       const leaseQueryText =
-        "INSERT INTO lease(property_id, start_date, end_date, price_per_month, is_renewal, previous_lease_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING id";
+        "INSERT INTO lease(property_id, start_date, end_date, price_per_month, is_renewal) VALUES($1, $2, $3, $4, $5, $6) RETURNING id";
       const leaseValues = [
         propertyId,
         startDate,
         endDate,
         pricePerMonth,
         isRenewal,
-        previousLeaseId,
       ];
       const leaseResult = await pool.query(leaseQueryText, leaseValues);
       const leaseId = leaseResult.rows[0].id;
@@ -79,35 +74,88 @@ const LeaseQueries = {
   },
 };
 
-const getRenewalInfo = async (propertyId) => {
-  let previousLeaseId = null;
-  let currentTenants = [];
-
-  const prevLeaseQuery =
-    "SELECT id FROM lease WHERE property_id = $1 ORDER BY start_date DESC LIMIT 1";
-  const result = await pool.query(prevLeaseQuery, [propertyId]);
-
-  if (result.rows.length > 0) {
-    previousLeaseId = result.rows[0].id;
-
-    const currentTenantQuery = `
-            SELECT tenant.* 
-            FROM tenant_lease 
-            JOIN tenant ON tenant.id = tenant_lease.tenant_id 
-            WHERE tenant_lease.lease_id = $1
-        `;
-    const tenantResult = await pool.query(currentTenantQuery, [
-      previousLeaseId,
-    ]);
-    currentTenants = tenantResult.rows;
-  } else {
-    throw new Error("No previous lease found for renewal");
+const validateNewLease = async (
+  startDate,
+  endDate,
+  isRenewal,
+  tenants,
+  existingLeases
+) => {
+  // check 1: combination of isRenewal and tenants is valid
+  if (isRenewal && tenants.length > 0) {
+    throw new Error("Tenants cannot be provided for renewal lease.");
+  }
+  if (!isRenewal && tenants.length === 0) {
+    throw new Error("Tenants must be provided for non-renewal lease");
   }
 
-  return {
-    previousLeaseId,
-    currentTenants,
-  };
+  // check 2: lease startDate and endDate are valid
+  const leaseStartDate = DateTime.fromISO(startDate);
+  const leaseEndDate = DateTime.fromISO(endDate);
+  if (leaseStartDate.plus({ months: 1 }) > leaseEndDate) {
+    throw new Error("StartDate should come at least one month before EndDate.");
+  }
+
+  // check 3: leases cannot overlap
+  for (const lease of existingLeases) {
+    const existingStart = lease.startDate;
+    const existingEnd = lease.endDate;
+
+    if (
+      (leaseStartDate >= existingStart && leaseStartDate <= existingEnd) ||
+      (leaseEndDate >= existingStart && leaseEndDate <= existingEnd) ||
+      (leaseStartDate <= existingStart && leaseEndDate >= existingEnd)
+    ) {
+      throw new Error("New lease overlaps with an existing lease.");
+    }
+  }
+
+  if (isRenewal) {
+    // check 4: the first lease cannot be a renewal
+    const indexToInsert = existingLeases.findIndex(
+      (lease) => leaseStartDate > lease.startDate
+    );
+    if (indexToInsert === -1) {
+      throw new Error("First lease for a property cannot be a renewal");
+    }
+
+    // check 5: if lease is a renewal then it must start right after previous lease
+    const prevLease = existingLeases[indexToInsert];
+    if (!prevLease.endDate.plus({ days: 1 }).equals(leaseStartDate)) {
+      throw new Error("Renewal lease must start directly after previous lease");
+    }
+  }
+
+  return null;
+};
+
+const getLeasesForProperty = async (propertyId) => {
+  try {
+    const query = `
+      SELECT 
+        l.start_date,
+        l.end_date,
+        l.is_renewal,
+        array_agg(tl.tenant_id) AS tenant_ids
+      FROM lease l
+      LEFT JOIN tenant_lease tl ON l.id = tl.lease_id
+      WHERE l.property_id = $1
+      GROUP BY l.id
+      ORDER BY l.start_date DESC;
+    `;
+
+    const { rows } = await pool.query(query, [propertyId]);
+
+    return rows.map((row) => ({
+      startDate: DateTime.fromISO(row.start_date),
+      endDate: DateTime.fromISO(row.end_date),
+      isRenewal: row.is_renewal,
+      tenantIds: row.tenant_ids,
+    }));
+  } catch (err) {
+    console.error("Error fetching leases for property:", err);
+    throw err;
+  }
 };
 
 const getLeaseEvents = (startDateString, endDateString) => {
@@ -140,6 +188,7 @@ const getLeaseEvents = (startDateString, endDateString) => {
 };
 
 module.exports = {
+  validateNewLease,
   getLeaseEvents,
   LeaseQueries,
 };
