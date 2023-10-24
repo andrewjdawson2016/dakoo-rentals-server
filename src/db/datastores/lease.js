@@ -14,8 +14,11 @@ const LeaseQueries = {
     await pool.query("BEGIN");
 
     try {
+      const existingLeases = await getLeasesForProperty(propertyId);
+      validateNewLease(startDate, endDate, isRenewal, tenants, existingLeases);
+
       const leaseQueryText =
-        "INSERT INTO lease(property_id, start_date, end_date, price_per_month, is_renewal) VALUES($1, $2, $3, $4, $5, $6) RETURNING id";
+        "INSERT INTO lease(property_id, start_date, end_date, price_per_month, is_renewal) VALUES($1, $2, $3, $4, $5) RETURNING id";
       const leaseValues = [
         propertyId,
         startDate,
@@ -42,10 +45,11 @@ const LeaseQueries = {
       }
 
       if (isRenewal) {
-        for (let tenant of currentTenants) {
+        const prevLease = getPreviousLease(startDate, existingLeases);
+        for (let tenantId of prevLease.tenantIds) {
           const tenantLeaseInsertQuery =
             "INSERT INTO tenant_lease (tenant_id, lease_id) VALUES ($1, $2)";
-          await pool.query(tenantLeaseInsertQuery, [tenant.id, leaseId]);
+          await pool.query(tenantLeaseInsertQuery, [tenantId, leaseId]);
         }
       } else {
         for (let tenant of tenants) {
@@ -74,7 +78,18 @@ const LeaseQueries = {
   },
 };
 
-const validateNewLease = async (
+const getPreviousLease = (startDate, existingLeases) => {
+  const leaseStartDate = DateTime.fromISO(startDate);
+  const prevLeaseIndex = existingLeases.findIndex(
+    (lease) => leaseStartDate > lease.startDate
+  );
+  if (prevLeaseIndex === -1) {
+    throw new Error("Failed to find previous lease");
+  }
+  return existingLeases[prevLeaseIndex];
+};
+
+const validateNewLease = (
   startDate,
   endDate,
   isRenewal,
