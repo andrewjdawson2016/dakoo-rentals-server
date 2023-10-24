@@ -53,8 +53,7 @@ class Lease {
       row.start_date,
       row.end_date,
       row.price_per_month,
-      row.is_renewal,
-      row.previous_lease_id
+      row.is_renewal
     );
   }
 
