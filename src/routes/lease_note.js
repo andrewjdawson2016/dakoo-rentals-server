@@ -39,7 +39,7 @@ router.post("/", (req, res) => {
     })
     .catch((err) => {
       console.error("Error executing query", err.stack);
-      res.status(500).json({ error: "Internal Server Error" });
+      res.status(500).json({ error: err.message });
     });
 });
 
@@ -54,7 +54,7 @@ router.delete("/:id", async (req, res) => {
     res.status(204).send();
   } catch (err) {
     console.error(err);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err.message });
   }
 });
 

@@ -49,7 +49,7 @@ router.patch("/", async (req, res) => {
     });
   } catch (err) {
     console.error("Error executing query", err.stack);
-    res.status(500).json({ error: "Internal Server Error" });
+    res.status(500).json({ error: err.message });
   }
 });
 
