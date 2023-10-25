@@ -161,12 +161,14 @@ const getLeasesForProperty = async (propertyId) => {
 
     const { rows } = await pool.query(query, [propertyId]);
 
-    return rows.map((row) => ({
-      startDate: DateTime.fromISO(row.start_date),
-      endDate: DateTime.fromISO(row.end_date),
-      isRenewal: row.is_renewal,
-      tenantIds: row.tenant_ids,
-    }));
+    return rows.map((row) => {
+      return {
+        startDate: DateTime.fromJSDate(row.start_date),
+        endDate: DateTime.fromJSDate(row.end_date),
+        isRenewal: row.is_renewal,
+        tenantIds: row.tenant_ids,
+      };
+    });
   } catch (err) {
     console.error("Error fetching leases for property:", err);
     throw err;
