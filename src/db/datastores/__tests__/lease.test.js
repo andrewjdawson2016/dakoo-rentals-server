@@ -2,11 +2,12 @@ const { getLeaseEvents, validateNewLease } = require("../lease");
 const { DateTime } = require("luxon");
 
 describe("getLeaseEvents", () => {
-  it("should return only start and end events for leases of 2 months or less", () => {
+  it("should include 1 month reminder for leases longer than 1 month but less or equal to 2 months", () => {
     const events = getLeaseEvents("2022-01-01", "2022-02-28");
     expect(events).toEqual([
       { date: "2022-01-01", description: "START" },
       { date: "2022-02-28", description: "END" },
+      { date: "2022-01-28", description: "ONE_MONTH" },
     ]);
   });
 
@@ -15,8 +16,8 @@ describe("getLeaseEvents", () => {
     expect(events).toEqual([
       { date: "2022-01-01", description: "START" },
       { date: "2022-06-30", description: "END" },
-      { date: "2022-04-30", description: "TWO_MONTH" },
       { date: "2022-05-30", description: "ONE_MONTH" },
+      { date: "2022-04-30", description: "TWO_MONTH" },
     ]);
   });
 
@@ -25,8 +26,8 @@ describe("getLeaseEvents", () => {
     expect(events).toEqual([
       { date: "2022-01-01", description: "START" },
       { date: "2022-12-31", description: "END" },
-      { date: "2022-10-31", description: "TWO_MONTH" },
       { date: "2022-11-30", description: "ONE_MONTH" },
+      { date: "2022-10-31", description: "TWO_MONTH" },
       { date: "2022-06-30", description: "SIX_MONTH" },
     ]);
   });

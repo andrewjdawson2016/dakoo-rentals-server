@@ -185,14 +185,16 @@ const getLeaseEvents = (startDateString, endDateString) => {
   ];
 
   const leaseMonths = endDate.diff(startDate, "months").months;
+  if (leaseMonths > 1) {
+    events.push({
+      date: endDate.minus({ months: 1 }).toISODate(),
+      description: "ONE_MONTH",
+    });
+  }
   if (leaseMonths > 2) {
     events.push({
       date: endDate.minus({ months: 2 }).toISODate(),
       description: "TWO_MONTH",
-    });
-    events.push({
-      date: endDate.minus({ months: 1 }).toISODate(),
-      description: "ONE_MONTH",
     });
   }
   if (leaseMonths > 6) {
