@@ -12,9 +12,9 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/properties", routers.propertiesRouter);
 app.use("/leases", routers.leasesRouter);
-app.use("/tenant", routers.tenantRouter);
-app.use("/lease_note", routers.leaseNoteRouter);
-app.use("/lease_event", routers.leaseEventRouter);
+app.use("/tenants", routers.tenantRouter);
+app.use("/lease_notes", routers.leaseNoteRouter);
+app.use("/lease_events", routers.leaseEventRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
