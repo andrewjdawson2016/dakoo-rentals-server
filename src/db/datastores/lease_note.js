@@ -3,27 +3,24 @@ const { pool } = require("../conn");
 const LeaseNoteQueries = {
   insert: async (leaseId, note) => {
     try {
-      const insertQuery = `INSERT INTO lease_note (lease_id, note) VALUES ($1, $2) RETURNING id;`;
-      const result = await pool.query(insertQuery, [leaseId, note]);
-      return result.rows[0].id;
+      const result = await pool.query(
+        `INSERT INTO lease_note (lease_id, note) VALUES ($1, $2) RETURNING id;`,
+        [leaseId, note]
+      );
+      return null;
     } catch (error) {
-      console.error("Error inserting lease note:", error);
-      throw error;
+      console.error(error);
+      return error;
     }
   },
 
   delete: async (id) => {
     try {
-      const deleteQuery = `DELETE FROM lease_note WHERE id = $1 RETURNING id;`;
-      const result = await pool.query(deleteQuery, [id]);
-
-      if (result.rows.length === 0) {
-        throw new Error(`Lease note with ID ${id} not found.`);
-      }
-      return result.rows[0].id;
+      await pool.query(`DELETE FROM lease_note WHERE id = $1;`, [id]);
+      return null;
     } catch (error) {
-      console.error("Error deleting lease note:", error);
-      throw error;
+      console.error(error);
+      return error;
     }
   },
 };

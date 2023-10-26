@@ -1,17 +1,20 @@
 const { pool } = require("../conn");
+const { NotFoundError } = require("./types");
 
 const LeaseEventQueries = {
   setExecutionDate: async (id, executionDate) => {
     try {
-      const updateQuery = `UPDATE lease_event SET execution_date = $1 WHERE id = $2 RETURNING id, execution_date;`;
-      const result = await pool.query(updateQuery, [executionDate, id]);
+      const result = await pool.query(
+        `UPDATE lease_event SET execution_date = $1 WHERE id = $2 RETURNING id, execution_date;`,
+        [executionDate, id]
+      );
       if (result.rows.length === 0) {
-        throw new Error(`Lease event with ID ${id} not found.`);
+        return new NotFoundError(`Lease event not found.`);
       }
-      return result.rows[0];
+      return null;
     } catch (error) {
-      console.error("Error setting execution date for lease event:", error);
-      throw error;
+      console.error(error);
+      return error;
     }
   },
 };

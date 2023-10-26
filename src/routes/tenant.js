@@ -1,21 +1,16 @@
 const express = require("express");
 const { TenantQueries } = require("../db/datastores/tenant");
+const { InternalServiceErrorMsg } = require("./common");
 
 const router = express.Router();
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
-
-  try {
-    const result = await TenantQueries.delete(id);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Tenant not found" });
-    }
-    res.status(204).send();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+  const err = await TenantQueries.delete(id);
+  if (err) {
+    return res.status(500).json({ error: InternalServiceErrorMsg });
   }
+  res.status(204).send();
 });
 
 module.exports = {
