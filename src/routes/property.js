@@ -1,6 +1,7 @@
 const express = require("express");
 const { PropertyQueries } = require("../db/datastores/property");
 const Joi = require("@hapi/joi");
+const { parseDatabaseError } = require("./common");
 
 const router = express.Router();
 
@@ -22,36 +23,48 @@ function validateNewProperty(body) {
 }
 
 router.post("/", async (req, res) => {
-  let { err } = validateNewProperty(req.body);
+  let { e } = validateNewProperty(req.body);
 
-  if (err) {
+  if (e) {
     return res.status(400).json({
-      error: err.details[0].message,
+      error: e.details[0].message,
     });
   }
 
-  err = await PropertyQueries.insert(req.body.address);
-  if (err) {
-    return res.status(500).json({ error: InternalServiceErrorMsg });
+  try {
+    await PropertyQueries.insert(req.body.address);
+    return res.status(201).send();
+  } catch {
+    const { message, status } = parseDatabaseError(e);
+    return res
+      .status(status)
+      .json({ error: `Failed to create property: ${message}` });
   }
-  return res.status(201).send();
 });
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
-  const err = await PropertyQueries.delete(id);
-  if (err) {
-    return res.status(500).json({ error: InternalServiceErrorMsg });
+  try {
+    await PropertyQueries.delete(id);
+    return res.status(204).send();
+  } catch (e) {
+    const { message, status } = parseDatabaseError(e);
+    return res
+      .status(status)
+      .json({ error: `Failed to delete property: ${message}` });
   }
-  return res.status(204).send();
 });
 
 router.get("/", async (req, res) => {
-  const { properties, error } = await PropertyQueries.list();
-  if (error) {
-    return res.status(500).json({ error: InternalServiceErrorMsg });
+  try {
+    const properties = await PropertyQueries.list();
+    return res.status(200).json({ properties: properties });
+  } catch (e) {
+    const { message, status } = parseDatabaseError(e);
+    return res
+      .status(status)
+      .json({ error: `Failed to list properties: ${message}` });
   }
-  return res.status(200).json({ properties: properties });
 });
 
 module.exports = {

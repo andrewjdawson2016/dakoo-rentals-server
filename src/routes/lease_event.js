@@ -2,6 +2,7 @@ const express = require("express");
 const { LeaseEventQueries } = require("../db/datastores/lease_event");
 const Joi = require("@hapi/joi");
 const { DateTime } = require("luxon");
+const { parseDatabaseError } = require("./common");
 
 const router = express.Router();
 
@@ -32,11 +33,11 @@ function validateNewLeaseEvent(body) {
 }
 
 router.patch("/", async (req, res) => {
-  const { error } = validateNewLeaseEvent(req.body);
+  const { e } = validateNewLeaseEvent(req.body);
 
-  if (error) {
+  if (e) {
     return res.status(400).json({
-      error: error.details[0].message,
+      error: e.details[0].message,
     });
   }
 
@@ -44,12 +45,12 @@ router.patch("/", async (req, res) => {
 
   try {
     await LeaseEventQueries.setExecutionDate(id, execution_date);
-    res.status(200).json({
-      message: "Execution date updated successfully",
-    });
-  } catch (err) {
-    console.error("Error executing query", err.stack);
-    res.status(500).json({ error: err.message });
+    return res.status(200).send();
+  } catch (e) {
+    const { message, status } = parseDatabaseError(e);
+    return res
+      .status(status)
+      .json({ error: `Failed to delete lease event: ${message}` });
   }
 });
 

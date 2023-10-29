@@ -1,11 +1,4 @@
-const {
-  Property,
-  Lease,
-  LeaseEvent,
-  LeaseNote,
-  Tenant,
-  AlreadyExistsError,
-} = require("./types");
+const { Property, Lease, LeaseEvent, LeaseNote, Tenant } = require("./types");
 const { pool } = require("../conn");
 const { QueryHelpers } = require("./util");
 

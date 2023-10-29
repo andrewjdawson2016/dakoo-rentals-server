@@ -2,6 +2,7 @@ const express = require("express");
 const { LeaseQueries } = require("../db/datastores/lease");
 const Joi = require("@hapi/joi");
 const { DateTime } = require("luxon");
+const { parseDatabaseError } = require("./common");
 
 const router = express.Router();
 
@@ -79,11 +80,11 @@ function validateNewLease(body) {
 }
 
 router.post("/", async (req, res) => {
-  let { err } = validateNewLease(req.body);
+  let { e } = validateNewLease(req.body);
 
-  if (err) {
+  if (e) {
     return res.status(400).json({
-      error: err.details[0].message,
+      error: e.details[0].message,
     });
   }
 
@@ -97,28 +98,36 @@ router.post("/", async (req, res) => {
     tenants,
   } = req.body;
 
-  err = await LeaseQueries.insert(
-    property_id,
-    start_date,
-    end_date,
-    price_per_month,
-    is_renewal,
-    note,
-    tenants
-  );
-  if (err) {
-    return res.status(500).json({ error: InternalServiceErrorMsg });
+  try {
+    await LeaseQueries.insert(
+      property_id,
+      start_date,
+      end_date,
+      price_per_month,
+      is_renewal,
+      note,
+      tenants
+    );
+    return res.status(201).send();
+  } catch (e) {
+    const { message, status } = parseDatabaseError(e);
+    return res
+      .status(status)
+      .json({ error: `Failed to create lease: ${message}` });
   }
-  return res.status(201).send();
 });
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
-  const err = await LeaseQueries.delete(id);
-  if (err) {
-    return res.status(500).json({ error: InternalServiceErrorMsg });
+  try {
+    await LeaseQueries.delete(id);
+    return res.status(204).send();
+  } catch (e) {
+    const { message, status } = parseDatabaseError(e);
+    return res
+      .status(status)
+      .json({ error: `Failed to delete lease: ${message}` });
   }
-  return res.status(204).send();
 });
 
 module.exports = {

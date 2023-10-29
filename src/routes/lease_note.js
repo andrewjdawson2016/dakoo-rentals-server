@@ -1,6 +1,7 @@
 const express = require("express");
 const { LeaseNoteQueries } = require("../db/datastores/lease_note");
 const Joi = require("@hapi/joi");
+const { parseDatabaseError } = require("./common");
 
 const router = express.Router();
 
@@ -20,31 +21,39 @@ function validateNewLeaseNote(body) {
   return leaseNoteSchema.validate(body);
 }
 
-router.post("/", (req, res) => {
-  let { err } = validateNewLeaseNote(req.body);
+router.post("/", async (req, res) => {
+  let { e } = validateNewLeaseNote(req.body);
 
-  if (err) {
+  if (e) {
     return res.status(400).json({
-      error: err.details[0].message,
+      error: e.details[0].message,
     });
   }
 
   const { lease_id, note } = req.body;
 
-  err = LeaseNoteQueries.insert(lease_id, note);
-  if (err) {
-    return res.status(500).json({ error: err.message });
+  try {
+    await LeaseNoteQueries.insert(lease_id, note);
+    return res.status(201).send();
+  } catch (e) {
+    const { message, status } = parseDatabaseError(e);
+    return res
+      .status(status)
+      .json({ error: `Failed to create lease note: ${message}` });
   }
-  return res.status(201).send();
 });
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
-  const err = await LeaseNoteQueries.delete(id);
-  if (err) {
-    return res.status(500).json({ error: InternalServiceErrorMsg });
+  try {
+    await LeaseNoteQueries.delete(id);
+    return res.status(204).send();
+  } catch (e) {
+    const { message, status } = parseDatabaseError(e);
+    return res
+      .status(status)
+      .json({ error: `Failed to delete lease note: ${message}` });
   }
-  return res.status(204).send();
 });
 
 module.exports = {

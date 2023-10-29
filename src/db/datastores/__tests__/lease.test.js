@@ -52,7 +52,7 @@ describe("validateNewLease", () => {
     const existingLeases = [];
     expect(() =>
       validateNewLease("2023-01-01", "2023-01-15", false, [1], existingLeases)
-    ).toThrow("StartDate should come at least one month before EndDate.");
+    ).toThrow("StartDate should come at least one month before EndDate");
   });
 
   it("should throw an error if the new lease overlaps with an existing lease", () => {
@@ -67,15 +67,15 @@ describe("validateNewLease", () => {
 
     expect(() =>
       validateNewLease("2023-01-15", "2023-03-15", false, [1], existingLeases)
-    ).toThrow("New lease overlaps with an existing lease.");
+    ).toThrow("New lease overlaps with an existing lease");
 
     expect(() =>
       validateNewLease("2022-12-15", "2023-02-15", false, [1], existingLeases)
-    ).toThrow("New lease overlaps with an existing lease.");
+    ).toThrow("New lease overlaps with an existing lease");
 
     expect(() =>
       validateNewLease("2022-1-15", "2023-02-15", false, [1], existingLeases)
-    ).toThrow("New lease overlaps with an existing lease.");
+    ).toThrow("New lease overlaps with an existing lease");
   });
 
   it("should throw an error if only lease is a renewal", () => {
