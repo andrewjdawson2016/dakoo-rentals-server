@@ -21,50 +21,37 @@ function validateNewProperty(body) {
   return addressSchema.validate(body);
 }
 
-router.post("/", (req, res) => {
-  const { error } = validateNewProperty(req.body);
+router.post("/", async (req, res) => {
+  let { err } = validateNewProperty(req.body);
 
-  if (error) {
+  if (err) {
     return res.status(400).json({
-      error: error.details[0].message,
+      error: err.details[0].message,
     });
   }
 
-  PropertyQueries.insert(req.body.address)
-    .then(() => {
-      res.status(201).json({
-        message: "Property added successfully",
-      });
-    })
-    .catch((err) => {
-      console.error("Error executing query", err.stack);
-      res.status(500).json({ error: err.message });
-    });
+  err = await PropertyQueries.insert(req.body.address);
+  if (err) {
+    return res.status(500).json({ error: InternalServiceErrorMsg });
+  }
+  return res.status(201).send();
 });
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
-
-  try {
-    const result = await PropertyQueries.delete(id);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Property not found" });
-    }
-    res.status(204).send();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+  const err = await PropertyQueries.delete(id);
+  if (err) {
+    return res.status(500).json({ error: InternalServiceErrorMsg });
   }
+  return res.status(204).send();
 });
 
 router.get("/", async (req, res) => {
-  try {
-    const properties = await PropertyQueries.list();
-    res.status(200).json(properties);
-  } catch (err) {
-    console.error("Error executing query", err.stack);
-    res.status(500).json({ error: err.message });
+  const { properties, error } = await PropertyQueries.list();
+  if (error) {
+    return res.status(500).json({ error: InternalServiceErrorMsg });
   }
+  return res.status(200).json({ properties: properties });
 });
 
 module.exports = {

@@ -1,14 +1,8 @@
-const { pool } = require("../conn");
+const { QueryHelpers } = require("./util");
 
 const TenantQueries = {
-  delete: async (id) => {
-    try {
-      await pool.query(`DELETE FROM tenant WHERE id = $1;`, [id]);
-      return null;
-    } catch (error) {
-      console.error(error);
-      return error;
-    }
+  delete: (id) => {
+    return QueryHelpers.delete(`DELETE FROM tenant WHERE id = $1`, [id]);
   },
 };
 

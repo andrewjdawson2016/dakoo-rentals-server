@@ -10,7 +10,7 @@ router.delete("/:id", async (req, res) => {
   if (err) {
     return res.status(500).json({ error: InternalServiceErrorMsg });
   }
-  res.status(204).send();
+  return res.status(204).send();
 });
 
 module.exports = {

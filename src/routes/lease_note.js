@@ -21,41 +21,30 @@ function validateNewLeaseNote(body) {
 }
 
 router.post("/", (req, res) => {
-  const { error } = validateNewLeaseNote(req.body);
+  let { err } = validateNewLeaseNote(req.body);
 
-  if (error) {
+  if (err) {
     return res.status(400).json({
-      error: error.details[0].message,
+      error: err.details[0].message,
     });
   }
 
   const { lease_id, note } = req.body;
 
-  LeaseNoteQueries.insert(lease_id, note)
-    .then(() => {
-      res.status(201).json({
-        message: "Lease note added successfully",
-      });
-    })
-    .catch((err) => {
-      console.error("Error executing query", err.stack);
-      res.status(500).json({ error: err.message });
-    });
+  err = LeaseNoteQueries.insert(lease_id, note);
+  if (err) {
+    return res.status(500).json({ error: err.message });
+  }
+  return res.status(201).send();
 });
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
-
-  try {
-    const result = await LeaseNoteQueries.delete(id);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Lease note not found" });
-    }
-    res.status(204).send();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+  const err = await LeaseNoteQueries.delete(id);
+  if (err) {
+    return res.status(500).json({ error: InternalServiceErrorMsg });
   }
+  return res.status(204).send();
 });
 
 module.exports = {

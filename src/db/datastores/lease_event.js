@@ -9,12 +9,11 @@ const LeaseEventQueries = {
         [executionDate, id]
       );
       if (result.rows.length === 0) {
-        return new NotFoundError(`Lease event not found.`);
+        return new NotFoundError(`lease event not found.`);
       }
-      return null;
-    } catch (error) {
-      console.error(error);
-      return error;
+    } catch (e) {
+      console.error(e);
+      throw e;
     }
   },
 };

@@ -1,6 +1,7 @@
 const { pool } = require("../conn");
 const { DateTime } = require("luxon");
 const { ValidationError, NotFoundError } = require("./types");
+const { QueryHelpers } = require("./util");
 
 const LeaseQueries = {
   insert: async (
@@ -12,72 +13,78 @@ const LeaseQueries = {
     note = null,
     tenants = []
   ) => {
+    const client = await pool.connect();
     try {
-      await pool.query(`BEGIN`);
-      const existingLeases = await getLeasesForProperty(propertyId);
+      await client.query(`BEGIN`);
+      const existingLeases = await getLeasesForProperty(client, propertyId);
       validateNewLease(startDate, endDate, isRenewal, tenants, existingLeases);
 
-      const leaseResult = await pool.query(
+      const leaseResult = await QueryHelpers.insertWithClient(
+        client,
         `INSERT INTO lease(property_id, start_date, end_date, price_per_month, is_renewal) VALUES($1, $2, $3, $4, $5) RETURNING id`,
-        [propertyId, startDate, endDate, pricePerMonth, isRenewal]
+        [propertyId, startDate, endDate, pricePerMonth, isRenewal],
+        "lease already exists"
       );
       const leaseId = leaseResult.rows[0].id;
 
       if (note) {
-        await pool.query(
+        await QueryHelpers.insertWithClient(
+          client,
           `INSERT INTO lease_note (lease_id, note) VALUES ($1, $2)`,
-          [leaseId, note]
+          [leaseId, note],
+          "note already exists"
         );
       }
 
       const events = getLeaseEvents(startDate, endDate);
       for (let event of events) {
-        await pool.query(
+        await QueryHelpers.insertWithClient(
+          client,
           `INSERT INTO lease_event (lease_id, due_date, description) VALUES ($1, $2, $3)`,
-          [leaseId, event.date, event.description]
+          [leaseId, event.date, event.description],
+          "lease event already exists"
         );
       }
 
       if (isRenewal) {
         const prevLease = getPreviousLease(startDate, existingLeases);
         for (let tenantId of prevLease.tenantIds) {
-          await pool.query(
+          await QueryHelpers.insertWithClient(
+            client,
             `INSERT INTO tenant_lease (tenant_id, lease_id) VALUES ($1, $2)`,
-            [tenantId, leaseId]
+            [tenantId, leaseId],
+            "tenant lease already exists"
           );
         }
       } else {
         for (let tenant of tenants) {
-          const tenantInsertResult = await pool.query(
+          const tenantInsertResult = await QueryHelpers.insertWithClient(
+            client,
             `INSERT INTO tenant (name, email) VALUES ($1, $2) RETURNING id`,
-            [tenant.name, tenant.email]
+            [tenant.name, tenant.email],
+            "tenant already exists"
           );
+
           const tenantId = tenantInsertResult.rows[0].id;
-          await pool.query(
+          await QueryHelpers.insertWithClient(
+            client,
             `INSERT INTO tenant_lease (tenant_id, lease_id) VALUES ($1, $2)`,
-            [tenantId, leaseId]
+            [tenantId, leaseId],
+            "tenant lease already exists"
           );
         }
       }
-      await pool.query(`COMMIT`);
-      return null;
-    } catch (error) {
-      console.log(error);
-      await pool.query(`ROLLBACK`);
-      if (error.code === "23505") {
-        return new AlreadyExistsError(`Address already exists: ${address}`);
-      }
-      return error;
+      await client.query(`COMMIT`);
+    } catch (e) {
+      console.error(e);
+      await client.query(`ROLLBACK`);
+      throw e;
+    } finally {
+      client.release();
     }
   },
-  delete: async (id) => {
-    try {
-      await pool.query(`DELETE FROM lease WHERE id = $1`, [id]);
-      return null;
-    } catch (error) {
-      console.error(error);
-      return error;
-    }
+  delete: (id) => {
+    return QueryHelpers.delete(`DELETE FROM lease WHERE id = $1`, [id]);
   },
 };
 
@@ -112,7 +119,7 @@ const validateNewLease = (
   const leaseEndDate = DateTime.fromISO(endDate);
   if (leaseStartDate.plus({ months: 1 }) > leaseEndDate) {
     throw new ValidationError(
-      "StartDate should come at least one month before EndDate."
+      "StartDate should come at least one month before EndDate"
     );
   }
 
@@ -126,7 +133,7 @@ const validateNewLease = (
       (leaseEndDate >= existingStart && leaseEndDate <= existingEnd) ||
       (leaseStartDate <= existingStart && leaseEndDate >= existingEnd)
     ) {
-      throw new ValidationError("New lease overlaps with an existing lease.");
+      throw new ValidationError("New lease overlaps with an existing lease");
     }
   }
 
@@ -149,10 +156,9 @@ const validateNewLease = (
       );
     }
   }
-  return null;
 };
 
-const getLeasesForProperty = async (propertyId) => {
+const getLeasesForProperty = async (client, propertyId) => {
   const query = `
       SELECT 
         l.start_date,
@@ -166,7 +172,7 @@ const getLeasesForProperty = async (propertyId) => {
       ORDER BY l.start_date DESC;
     `;
 
-  const { rows } = await pool.query(query, [propertyId]);
+  const { rows } = await client.query(query, [propertyId]);
 
   return rows.map((row) => {
     return {

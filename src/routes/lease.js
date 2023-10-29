@@ -78,12 +78,12 @@ function validateNewLease(body) {
   return validationResult;
 }
 
-router.post("/", (req, res) => {
-  const { error } = validateNewLease(req.body);
+router.post("/", async (req, res) => {
+  let { err } = validateNewLease(req.body);
 
-  if (error) {
+  if (err) {
     return res.status(400).json({
-      error: error.details[0].message,
+      error: err.details[0].message,
     });
   }
 
@@ -97,7 +97,7 @@ router.post("/", (req, res) => {
     tenants,
   } = req.body;
 
-  LeaseQueries.insert(
+  err = await LeaseQueries.insert(
     property_id,
     start_date,
     end_date,
@@ -105,29 +105,20 @@ router.post("/", (req, res) => {
     is_renewal,
     note,
     tenants
-  )
-    .then((leaseId) => {
-      res.status(201).json({ message: "Lease created successfully.", leaseId });
-    })
-    .catch((err) => {
-      console.error(err);
-      res.status(500).json({ error: err.message });
-    });
+  );
+  if (err) {
+    return res.status(500).json({ error: InternalServiceErrorMsg });
+  }
+  return res.status(201).send();
 });
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
-
-  try {
-    const result = await LeaseQueries.delete(id);
-    if (result.rowCount === 0) {
-      return res.status(404).json({ error: "Lease not found" });
-    }
-    res.status(204).send();
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+  const err = await LeaseQueries.delete(id);
+  if (err) {
+    return res.status(500).json({ error: InternalServiceErrorMsg });
   }
+  return res.status(204).send();
 });
 
 module.exports = {

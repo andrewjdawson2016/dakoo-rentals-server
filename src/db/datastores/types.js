@@ -51,8 +51,8 @@ class Lease {
   ) {
     this.id = id;
     this.property_id = property_id;
-    this.start_date = DateTime.fromISO(start_date.toISOString()).toISODate();
-    this.end_date = DateTime.fromISO(end_date.toISOString()).toISODate();
+    this.start_date = DateTime.fromJSDate(start_date).toISODate();
+    this.end_date = DateTime.fromJSDate(end_date).toISODate();
     this.price_per_month = price_per_month;
     this.is_renewal = is_renewal;
     this.tenants = tenants;
@@ -101,9 +101,9 @@ class LeaseEvent {
   constructor(id, lease_id, due_date, execution_date, description) {
     this.id = id;
     this.lease_id = lease_id;
-    this.due_date = DateTime.fromISO(due_date.toISOString()).toISODate();
+    this.due_date = DateTime.fromJSDate(due_date).toISODate();
     this.execution_date = execution_date
-      ? DateTime.fromISO(execution_date.toISOString()).toISODate()
+      ? DateTime.fromJSDate(execution_date).toISODate()
       : "";
     this.description = description;
   }
@@ -134,6 +134,8 @@ class Tenant {
 
 module.exports = {
   NotFoundError,
+  AlreadyExistsError,
+  ValidationError,
   Property,
   LeaseNote,
   LeaseEvent,
