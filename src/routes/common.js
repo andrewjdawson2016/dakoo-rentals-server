@@ -11,25 +11,25 @@ function parseDatabaseError(e) {
     case AlreadyExistsError:
       return {
         message: e.message,
-        statusCode: 400,
+        status: 400,
       };
 
     case NotFoundError:
       return {
         message: e.message,
-        statusCode: 404,
+        status: 404,
       };
 
     case ValidationError:
       return {
         message: e.message,
-        statusCode: 400,
+        status: 400,
       };
 
     default:
       return {
         message: INTERNAL_SERVICE_ERROR_MSG,
-        statusCode: 500,
+        status: 500,
       };
   }
 }
