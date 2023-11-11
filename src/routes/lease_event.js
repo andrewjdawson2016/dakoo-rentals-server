@@ -41,7 +41,9 @@ router.patch("/", async (req, res) => {
     });
   }
 
-  const { id, execution_date } = value;
+  let { id, execution_date } = value;
+
+  execution_date = execution_date === "" ? null : execution_date;
 
   try {
     await LeaseEventQueries.setExecutionDate(id, execution_date);
