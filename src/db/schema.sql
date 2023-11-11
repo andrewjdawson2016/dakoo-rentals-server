@@ -25,7 +25,7 @@ CREATE TABLE lease_event (
     lease_id INT NOT NULL REFERENCES lease(id) ON DELETE CASCADE,
     due_date DATE NOT NULL,
     execution_date DATE,
-    description VARCHAR(10) NOT NULL CHECK (description IN ('START', 'SIX_MONTH', 'TWO_MONTH', 'ONE_MONTH', 'END')),
+    description VARCHAR(10) NOT NULL CHECK (description IN ('START', 'SIX_MONTH', 'TWO_MONTH', 'ONE_MONTH', 'END'))
 );
 
 CREATE TABLE tenant (
