@@ -13,10 +13,10 @@ const leaseEventSchema = Joi.object({
     "any.required": "id is required.",
   }),
   execution_date: Joi.string()
+    .allow("", null)
     .pattern(/^\d{4}-\d{2}-\d{2}$/)
-    .required()
     .custom((value, helpers) => {
-      if (!DateTime.fromISO(value).isValid) {
+      if (value && !DateTime.fromISO(value).isValid) {
         return helpers.error("date.invalid");
       }
       return value;
@@ -33,15 +33,15 @@ function validateNewLeaseEvent(body) {
 }
 
 router.patch("/", async (req, res) => {
-  const { e } = validateNewLeaseEvent(req.body);
+  const { error, value } = validateNewLeaseEvent(req.body);
 
-  if (e) {
+  if (error) {
     return res.status(400).json({
-      error: e.details[0].message,
+      error: error.details[0].message,
     });
   }
 
-  const { id, execution_date } = req.body;
+  const { id, execution_date } = value;
 
   try {
     await LeaseEventQueries.setExecutionDate(id, execution_date);
@@ -50,7 +50,7 @@ router.patch("/", async (req, res) => {
     const { message, status } = parseDatabaseError(e);
     return res
       .status(status)
-      .json({ error: `Failed to delete lease event: ${message}` });
+      .json({ error: `Failed to update lease event: ${message}` });
   }
 });
 
