@@ -26,7 +26,6 @@ CREATE TABLE lease_event (
     due_date DATE NOT NULL,
     execution_date DATE,
     description VARCHAR(10) NOT NULL CHECK (description IN ('START', 'SIX_MONTH', 'TWO_MONTH', 'ONE_MONTH', 'END')),
-    CHECK (execution_date > due_date)
 );
 
 CREATE TABLE tenant (
