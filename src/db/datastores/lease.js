@@ -5,7 +5,7 @@ const { QueryHelpers } = require("./util");
 
 const LeaseQueries = {
   insert: async (
-    propertyId,
+    unitId,
     startDate,
     endDate,
     pricePerMonth,
@@ -16,13 +16,13 @@ const LeaseQueries = {
     const client = await pool.connect();
     try {
       await client.query(`BEGIN`);
-      const existingLeases = await getLeasesForProperty(client, propertyId);
+      const existingLeases = await getLeasesForUnit(client, unitId);
       validateNewLease(startDate, endDate, isRenewal, tenants, existingLeases);
 
       const leaseResult = await QueryHelpers.insertWithClient(
         client,
-        `INSERT INTO lease(property_id, start_date, end_date, price_per_month, is_renewal) VALUES($1, $2, $3, $4, $5) RETURNING id`,
-        [propertyId, startDate, endDate, pricePerMonth, isRenewal],
+        `INSERT INTO lease(unit_id, start_date, end_date, price_per_month, is_renewal) VALUES($1, $2, $3, $4, $5) RETURNING id`,
+        [unitId, startDate, endDate, pricePerMonth, isRenewal],
         "lease already exists"
       );
       const leaseId = leaseResult.rows[0].id;
@@ -143,9 +143,7 @@ const validateNewLease = (
       (lease) => leaseStartDate > lease.startDate
     );
     if (indexToInsert === -1) {
-      throw new ValidationError(
-        "First lease for a property cannot be a renewal"
-      );
+      throw new ValidationError("First lease for a unit cannot be a renewal");
     }
 
     // check 5: if lease is a renewal then it must start right after previous lease
@@ -158,7 +156,7 @@ const validateNewLease = (
   }
 };
 
-const getLeasesForProperty = async (client, propertyId) => {
+const getLeasesForUnit = async (client, unitId) => {
   const query = `
       SELECT 
         l.start_date,
@@ -167,12 +165,12 @@ const getLeasesForProperty = async (client, propertyId) => {
         array_agg(tl.tenant_id) AS tenant_ids
       FROM lease l
       LEFT JOIN tenant_lease tl ON l.id = tl.lease_id
-      WHERE l.property_id = $1
+      WHERE l.unit_id = $1
       GROUP BY l.id
       ORDER BY l.start_date DESC;
     `;
 
-  const { rows } = await client.query(query, [propertyId]);
+  const { rows } = await client.query(query, [unitId]);
 
   return rows.map((row) => {
     return {

@@ -1,11 +1,23 @@
-CREATE TABLE property (
+CREATE TABLE building (
     id SERIAL PRIMARY KEY,
-    address VARCHAR(255) NOT NULL UNIQUE
+    address VARCHAR(255) NOT NULL UNIQUE,
+    monthly_expenses INT NOT NULL,
+)
+
+CREATE TABLE unit (
+    id SERIAL PRIMARY KEY,
+    building_id INT NOT NULL REFERENCES building(id) ON DELETE CASCADE, 
+    unit_type VARCHAR(15) NOT NULL CHECK (unit_type IN ('SINGLE_FAMILY', 'MULTI_FAMILY')),
+    unit_number VARCHAR(10),
+    CHECK (
+        (unit_type = 'SINGLE_FAMILY' AND unit_number IS NULL) OR 
+        (unit_type = 'MULTI_FAMILY' AND unit_number IS NOT NULL)
+    )
 );
 
 CREATE TABLE lease (
     id SERIAL PRIMARY KEY,
-    property_id INT NOT NULL REFERENCES property(id) ON DELETE CASCADE,
+    unit_id INT NOT NULL REFERENCES unit(id) ON DELETE CASCADE,
     start_date DATE NOT NULL,
     end_date DATE NOT NULL,
     price_per_month INT NOT NULL,

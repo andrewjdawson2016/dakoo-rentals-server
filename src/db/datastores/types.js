@@ -21,15 +21,34 @@ class AlreadyExistsError extends Error {
   }
 }
 
-class Property {
-  constructor(id, address, leases = []) {
+class Building {
+  constructor(id, address, monthly_expenses, units = []) {
     this.id = id;
     this.address = address;
+    this.monthly_expenses = monthly_expenses;
+    this.units = units;
+  }
+
+  static fromRow(row) {
+    return new Building(row.id, row.address, row.monthly_expenses);
+  }
+
+  addUnit(unit) {
+    this.units.push(unit);
+  }
+}
+
+class Unit {
+  constructor(id, building_id, unit_type, unit_number, leases = []) {
+    this.id = id;
+    this.building_id = building_id;
+    this.unit_type = unit_type;
+    this.unit_number = unit_number;
     this.leases = leases;
   }
 
   static fromRow(row) {
-    return new Property(row.id, row.address);
+    return new Unit(row.id, row.building_id, row.unit_type, row.unit_number);
   }
 
   addLease(lease) {
@@ -40,7 +59,7 @@ class Property {
 class Lease {
   constructor(
     id,
-    property_id,
+    unit_id,
     start_date,
     end_date,
     price_per_month,
@@ -50,7 +69,7 @@ class Lease {
     leaseEvents = []
   ) {
     this.id = id;
-    this.property_id = property_id;
+    this.unit_id = unit_id;
     this.start_date = DateTime.fromJSDate(start_date).toISODate();
     this.end_date = DateTime.fromJSDate(end_date).toISODate();
     this.price_per_month = price_per_month;
@@ -63,7 +82,7 @@ class Lease {
   static fromRow(row) {
     return new Lease(
       row.id,
-      row.property_id,
+      row.unit_id,
       row.start_date,
       row.end_date,
       row.price_per_month,
@@ -136,9 +155,10 @@ module.exports = {
   NotFoundError,
   AlreadyExistsError,
   ValidationError,
-  Property,
+  Unit,
   LeaseNote,
   LeaseEvent,
   Lease,
   Tenant,
+  Building,
 };
