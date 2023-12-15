@@ -33,14 +33,6 @@ describe("Unit Schema Validation through validateNewUnit", () => {
       expect(result.error).toBeUndefined();
     });
 
-    it("should accept MULTI_FAMILY as a unit_type", () => {
-      const result = validateNewUnit({
-        building_id: 1,
-        unit_type: "MULTI_FAMILY",
-      });
-      expect(result.error).toBeUndefined();
-    });
-
     it("should reject an invalid unit_type", () => {
       const result = validateNewUnit({
         building_id: 1,
@@ -52,6 +44,23 @@ describe("Unit Schema Validation through validateNewUnit", () => {
     it("should require unit_type", () => {
       const result = validateNewUnit({ building_id: 1 });
       expect(result.error).toBeDefined();
+    });
+  });
+
+  describe("unit_type MULTI_FAMILY", () => {
+    it("should require unit_number for MULTI_FAMILY", () => {
+      const resultWithoutUnitNumber = validateNewUnit({
+        building_id: 1,
+        unit_type: "MULTI_FAMILY",
+      });
+      expect(resultWithoutUnitNumber.error).toBeDefined();
+
+      const resultWithUnitNumber = validateNewUnit({
+        building_id: 1,
+        unit_type: "MULTI_FAMILY",
+        unit_number: "101",
+      });
+      expect(resultWithUnitNumber.error).toBeUndefined();
     });
   });
 
