@@ -2,7 +2,7 @@ const { validateNewLease } = require("../lease");
 
 describe("validateNewLease", () => {
   const validLease = {
-    property_id: 1,
+    unit_id: 1,
     start_date: "2023-04-01",
     end_date: "2023-12-31",
     price_per_month: 1000,
@@ -15,10 +15,10 @@ describe("validateNewLease", () => {
     ],
   };
 
-  it("should return an error for an invalid property_id", () => {
+  it("should return an error for an invalid unit_id", () => {
     const result = validateNewLease({
       ...validLease,
-      property_id: -1,
+      unit_id: -1,
     });
     expect(result.error).toBeDefined();
   });

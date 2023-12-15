@@ -82,7 +82,7 @@ describe("validateNewLease", () => {
     const existingLeases = [];
     expect(() =>
       validateNewLease("2023-01-01", "2023-02-01", true, [], existingLeases)
-    ).toThrow("First lease for a property cannot be a renewal");
+    ).toThrow("First lease for a unit cannot be a renewal");
   });
 
   it("should throw an error if the new lease starts earlier than all existing leases and is a renewal", () => {
@@ -103,7 +103,7 @@ describe("validateNewLease", () => {
 
     expect(() =>
       validateNewLease("2022-12-01", "2023-01-31", true, [], existingLeases)
-    ).toThrow("First lease for a property cannot be a renewal");
+    ).toThrow("First lease for a unit cannot be a renewal");
   });
 
   it("should throw an error if a renewal lease doesn't start directly after the previous lease", () => {

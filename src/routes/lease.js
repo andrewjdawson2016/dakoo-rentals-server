@@ -7,10 +7,10 @@ const { parseDatabaseError } = require("./common");
 const router = express.Router();
 
 const leaseSchema = Joi.object({
-  property_id: Joi.number().positive().required().messages({
-    "number.base": "Invalid property_id.",
-    "number.positive": "Invalid property_id.",
-    "any.required": "property_id is required.",
+  unit_id: Joi.number().positive().required().messages({
+    "number.base": "Invalid unit_id.",
+    "number.positive": "Invalid unit_id.",
+    "any.required": "unit_id is required.",
   }),
   start_date: Joi.string()
     .pattern(/^\d{4}-\d{2}-\d{2}$/)
@@ -89,7 +89,7 @@ router.post("/", async (req, res) => {
   }
 
   const {
-    property_id,
+    unit_id,
     start_date,
     end_date,
     price_per_month,
@@ -100,7 +100,7 @@ router.post("/", async (req, res) => {
 
   try {
     await LeaseQueries.insert(
-      property_id,
+      unit_id,
       start_date,
       end_date,
       price_per_month,
