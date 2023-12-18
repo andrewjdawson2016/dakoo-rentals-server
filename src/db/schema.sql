@@ -1,7 +1,6 @@
 CREATE TABLE building (
     id SERIAL PRIMARY KEY,
     address VARCHAR(255) NOT NULL UNIQUE,
-    monthly_expenses INT NOT NULL,
     nickname VARCHAR(255) NOT NULL UNIQUE,
     building_type VARCHAR(15) NOT NULL CHECK (building_type IN ('SINGLE_FAMILY', 'MULTI_FAMILY'))
 );

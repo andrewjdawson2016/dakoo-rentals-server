@@ -3,7 +3,6 @@ const { validateNewBuilding } = require("../building");
 describe("Building Schema Validation through validateNewBuilding", () => {
   const validBuilding = {
     address: "123 Main St",
-    monthly_expenses: 1000,
     nickname: "Main Building",
     building_type: "SINGLE_FAMILY",
     unit_numbers: [],
@@ -26,35 +25,6 @@ describe("Building Schema Validation through validateNewBuilding", () => {
 
     it("should require address", () => {
       const { address, ...rest } = validBuilding;
-      const result = validateNewBuilding(rest);
-      expect(result.error).toBeDefined();
-    });
-  });
-
-  describe("monthly_expenses", () => {
-    it("should accept valid monthly expenses", () => {
-      const result = validateNewBuilding(validBuilding);
-      expect(result.error).toBeUndefined();
-    });
-
-    it("should reject negative monthly expenses", () => {
-      const result = validateNewBuilding({
-        ...validBuilding,
-        monthly_expenses: -100,
-      });
-      expect(result.error).toBeDefined();
-    });
-
-    it("should reject non-integer monthly expenses", () => {
-      const result = validateNewBuilding({
-        ...validBuilding,
-        monthly_expenses: "invalid",
-      });
-      expect(result.error).toBeDefined();
-    });
-
-    it("should require monthly expenses", () => {
-      const { monthly_expenses, ...rest } = validBuilding;
       const result = validateNewBuilding(rest);
       expect(result.error).toBeDefined();
     });

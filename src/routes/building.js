@@ -11,12 +11,6 @@ const buildingSchema = Joi.object({
     "string.max": "Address must not exceed 255 characters.",
     "any.required": "Address is required.",
   }),
-  monthly_expenses: Joi.number().integer().min(0).required().messages({
-    "number.base": "Invalid monthly expenses format.",
-    "number.integer": "Monthly expenses must be an integer.",
-    "number.min": "Monthly expenses cannot be negative.",
-    "any.required": "Monthly expenses are required.",
-  }),
   nickname: Joi.string().max(255).required().messages({
     "string.base": "Invalid nickname format.",
     "string.max": "Nickname must not exceed 255 characters.",
@@ -84,7 +78,6 @@ router.post("/", async (req, res) => {
   try {
     await BuildingQueries.insert(
       req.body.address,
-      req.body.monthly_expenses,
       req.body.nickname,
       req.body.building_type,
       req.body.unit_numbers
