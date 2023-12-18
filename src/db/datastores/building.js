@@ -5,6 +5,7 @@ const {
   LeaseEvent,
   LeaseNote,
   Tenant,
+  NotFoundError,
 } = require("./types");
 const { pool } = require("../conn");
 const { QueryHelpers } = require("./util");
@@ -52,7 +53,7 @@ const BuildingQueries = {
       );
 
       if (buildingQueryResult.rows.length === 0) {
-        throw new NotFoundError("Failed to find building with id");
+        throw new NotFoundError("Failed to find building with id: ", id);
       }
 
       const buildingRow = buildingQueryResult.rows[0];
