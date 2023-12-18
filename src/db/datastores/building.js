@@ -19,7 +19,7 @@ const BuildingQueries = {
       await client.query(`BEGIN`);
       const buildingResult = await QueryHelpers.insertWithClient(
         client,
-        `INSERT INTO building (address, nickname, building_type) VALUES ($1, $2, $3)`,
+        `INSERT INTO building (address, nickname, building_type) VALUES ($1, $2, $3) RETURNING id`,
         [address, nickname, buildingType],
         "building already exists"
       );

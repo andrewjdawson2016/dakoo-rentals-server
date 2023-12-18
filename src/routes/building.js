@@ -69,6 +69,9 @@ router.get("/", async (req, res) => {
 router.post("/", async (req, res) => {
   let { e } = validateNewBuilding(req.body);
 
+  console.log("building_type: ", req.body.building_type);
+  console.log("unit_numbers array length: ", req.body.unit_numbers.length);
+
   if (e) {
     return res.status(400).json({
       error: e.details[0].message,
