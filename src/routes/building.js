@@ -70,7 +70,7 @@ router.post("/", async (req, res) => {
   let { error } = validateNewBuilding(req.body);
   if (error) {
     return res.status(400).json({
-      error: e.details[0].message,
+      error: error.details[0].message,
     });
   }
 
