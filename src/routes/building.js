@@ -54,6 +54,20 @@ function validateNewBuilding(body) {
   return buildingSchema.validate(body);
 }
 
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const building = await BuildingQueries.getById(id);
+    return res.status(200).json({ building: building });
+  } catch (e) {
+    const { message, status } = parseDatabaseError(e);
+    return res
+      .status(status)
+      .json({ error: `Failed to fetch building: ${message}` });
+  }
+});
+
 router.get("/", async (req, res) => {
   try {
     const buildings = await BuildingQueries.list();
