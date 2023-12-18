@@ -13,10 +13,10 @@ const BuildingQueries = {
   delete: (id) => {
     return QueryHelpers.delete(`DELETE FROM building WHERE id = $1`, [id]);
   },
-  insert: (address, monthlyExpenses) => {
+  insert: (address, monthlyExpenses, nickname) => {
     return QueryHelpers.insert(
-      `INSERT INTO building (address, monthly_expenses) VALUES ($1, $2)`,
-      [address, monthlyExpenses],
+      `INSERT INTO building (address, monthly_expenses, nickname) VALUES ($1, $2, $3)`,
+      [address, monthlyExpenses, nickname],
       `building already exists`
     );
   },

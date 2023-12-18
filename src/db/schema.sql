@@ -1,7 +1,8 @@
 CREATE TABLE building (
     id SERIAL PRIMARY KEY,
     address VARCHAR(255) NOT NULL UNIQUE,
-    monthly_expenses INT NOT NULL
+    monthly_expenses INT NOT NULL,
+    nickname VARCHAR(255) NOT NULL UNIQUE
 );
 
 CREATE TABLE unit (

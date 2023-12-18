@@ -17,6 +17,11 @@ const buildingSchema = Joi.object({
     "number.min": "Monthly expenses cannot be negative.",
     "any.required": "Monthly expenses are required.",
   }),
+  nickname: Joi.string().max(255).required().messages({
+    "string.base": "Invalid nickname format.",
+    "string.max": "Nickname must not exceed 255 characters.",
+    "any.required": "Nickname is required.",
+  }),
 });
 function validateNewBuilding(body) {
   return buildingSchema.validate(body);
@@ -44,7 +49,11 @@ router.post("/", async (req, res) => {
   }
 
   try {
-    await BuildingQueries.insert(req.body.address, req.body.monthly_expenses);
+    await BuildingQueries.insert(
+      req.body.address,
+      req.body.monthly_expenses,
+      req.body.nickname
+    );
     return res.status(201).send();
   } catch {
     const { message, status } = parseDatabaseError(e);
