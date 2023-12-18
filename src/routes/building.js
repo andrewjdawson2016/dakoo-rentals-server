@@ -12,7 +12,7 @@ const buildingSchema = Joi.object({
     "any.required": "Address is required.",
   }),
   monthly_expenses: Joi.number().integer().min(0).required().messages({
-    "number.base": "Invalid monthly_expenses format.",
+    "number.base": "Invalid monthly expenses format.",
     "number.integer": "Monthly expenses must be an integer.",
     "number.min": "Monthly expenses cannot be negative.",
     "any.required": "Monthly expenses are required.",
@@ -22,7 +22,40 @@ const buildingSchema = Joi.object({
     "string.max": "Nickname must not exceed 255 characters.",
     "any.required": "Nickname is required.",
   }),
+  building_type: Joi.string()
+    .valid("SINGLE_FAMILY", "MULTI_FAMILY")
+    .required()
+    .messages({
+      "string.base": "Invalid building type format.",
+      "any.only":
+        "Building type must be either 'SINGLE_FAMILY' or 'MULTI_FAMILY'.",
+      "any.required": "Building type is required.",
+    }),
+  unit_numbers: Joi.array()
+    .items(
+      Joi.string()
+        .pattern(/^[A-Za-z0-9]+$/)
+        .messages({
+          "string.pattern.base":
+            "Each unit must consist of uppercase and lowercase letters and/or digits.",
+        })
+    )
+    .when("building_type", {
+      is: "SINGLE_FAMILY",
+      then: Joi.array().empty().messages({
+        "array.empty":
+          "Unit numbers must be an empty array for a SINGLE_FAMILY building type.",
+      }),
+      otherwise: Joi.array().min(1).messages({
+        "array.min":
+          "Unit numbers must contain at least one unit for a MULTI_FAMILY building type.",
+      }),
+    })
+    .messages({
+      "array.base": "Invalid format for unit numbers.",
+    }),
 });
+
 function validateNewBuilding(body) {
   return buildingSchema.validate(body);
 }
@@ -52,7 +85,9 @@ router.post("/", async (req, res) => {
     await BuildingQueries.insert(
       req.body.address,
       req.body.monthly_expenses,
-      req.body.nickname
+      req.body.nickname,
+      req.body.building_type,
+      req.body.unit_numbers
     );
     return res.status(201).send();
   } catch {

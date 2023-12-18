@@ -13,12 +13,39 @@ const BuildingQueries = {
   delete: (id) => {
     return QueryHelpers.delete(`DELETE FROM building WHERE id = $1`, [id]);
   },
-  insert: (address, monthlyExpenses, nickname) => {
-    return QueryHelpers.insert(
-      `INSERT INTO building (address, monthly_expenses, nickname) VALUES ($1, $2, $3)`,
-      [address, monthlyExpenses, nickname],
-      `building already exists`
-    );
+  insert: async (
+    address,
+    monthlyExpenses,
+    nickname,
+    buildingType,
+    unitNumbers
+  ) => {
+    const client = await pool.connect();
+    try {
+      await client.query(`BEGIN`);
+      const buildingResult = await QueryHelpers.insertWithClient(
+        client,
+        `INSERT INTO building (address, monthly_expenses, nickname, building_type) VALUES ($1, $2, $3, $4)`,
+        [address, monthlyExpenses, nickname, buildingType],
+        "building already exists"
+      );
+      const buildingId = buildingResult.rows[0].id;
+      for (let unitNumber of unitNumbers) {
+        await QueryHelpers.insertWithClient(
+          client,
+          `INSERT INTO unit (building_id, unit_number) VALUES ($1, $2)`,
+          [buildingId, unitNumber],
+          "unit already exists"
+        );
+      }
+      await client.query(`COMMIT`);
+    } catch (e) {
+      console.error(e);
+      await client.query(`ROLLBACK`);
+      throw e;
+    } finally {
+      client.release();
+    }
   },
   list: async () => {
     const client = await pool.connect();

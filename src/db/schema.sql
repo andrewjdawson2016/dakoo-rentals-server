@@ -2,18 +2,14 @@ CREATE TABLE building (
     id SERIAL PRIMARY KEY,
     address VARCHAR(255) NOT NULL UNIQUE,
     monthly_expenses INT NOT NULL,
-    nickname VARCHAR(255) NOT NULL UNIQUE
+    nickname VARCHAR(255) NOT NULL UNIQUE,
+    building_type VARCHAR(15) NOT NULL CHECK (building_type IN ('SINGLE_FAMILY', 'MULTI_FAMILY'))
 );
 
 CREATE TABLE unit (
     id SERIAL PRIMARY KEY,
     building_id INT NOT NULL REFERENCES building(id) ON DELETE CASCADE, 
-    unit_type VARCHAR(15) NOT NULL CHECK (unit_type IN ('SINGLE_FAMILY', 'MULTI_FAMILY')),
-    unit_number VARCHAR(10),
-    CHECK (
-        (unit_type = 'SINGLE_FAMILY' AND unit_number IS NULL) OR 
-        (unit_type = 'MULTI_FAMILY' AND unit_number IS NOT NULL)
-    )
+    unit_number VARCHAR(10)
 );
 
 CREATE TABLE lease (
