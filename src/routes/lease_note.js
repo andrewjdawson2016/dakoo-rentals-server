@@ -22,11 +22,10 @@ function validateNewLeaseNote(body) {
 }
 
 router.post("/", async (req, res) => {
-  let { e } = validateNewLeaseNote(req.body);
-
-  if (e) {
+  let { error } = validateNewLeaseNote(req.body);
+  if (error) {
     return res.status(400).json({
-      error: e.details[0].message,
+      error: error.details[0].message,
     });
   }
 

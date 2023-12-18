@@ -80,11 +80,10 @@ function validateNewLease(body) {
 }
 
 router.post("/", async (req, res) => {
-  let { e } = validateNewLease(req.body);
-
-  if (e) {
+  let { error } = validateNewLease(req.body);
+  if (error) {
     return res.status(400).json({
-      error: e.details[0].message,
+      error: error.details[0].message,
     });
   }
 

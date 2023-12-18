@@ -67,12 +67,8 @@ router.get("/", async (req, res) => {
 });
 
 router.post("/", async (req, res) => {
-  let { e } = validateNewBuilding(req.body);
-
-  console.log("building_type: ", req.body.building_type);
-  console.log("unit_numbers array length: ", req.body.unit_numbers.length);
-
-  if (e) {
+  let { error } = validateNewBuilding(req.body);
+  if (error) {
     return res.status(400).json({
       error: e.details[0].message,
     });
@@ -86,7 +82,7 @@ router.post("/", async (req, res) => {
       req.body.unit_numbers
     );
     return res.status(201).send();
-  } catch {
+  } catch (e) {
     const { message, status } = parseDatabaseError(e);
     return res
       .status(status)
