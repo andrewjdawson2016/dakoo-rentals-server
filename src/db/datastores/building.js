@@ -26,6 +26,9 @@ const BuildingQueries = {
         "building already exists"
       );
       const buildingId = buildingResult.rows[0].id;
+      if (buildingType === "SINGLE_FAMILY") {
+        unitNumbers = [address];
+      }
       for (let unitNumber of unitNumbers) {
         await QueryHelpers.insertWithClient(
           client,
