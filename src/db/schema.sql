@@ -8,7 +8,7 @@ CREATE TABLE building (
 CREATE TABLE unit (
     id SERIAL PRIMARY KEY,
     building_id INT NOT NULL REFERENCES building(id) ON DELETE CASCADE, 
-    unit_number VARCHAR(10)
+    unit_number VARCHAR(255)
 );
 
 CREATE TABLE lease (
