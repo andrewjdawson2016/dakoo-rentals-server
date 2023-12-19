@@ -22,15 +22,16 @@ class AlreadyExistsError extends Error {
 }
 
 class Building {
-  constructor(id, address, nickname, units = []) {
+  constructor(id, address, nickname, building_type, units = []) {
     this.id = id;
     this.address = address;
     this.nickname = nickname;
+    this.building_type = building_type;
     this.units = units;
   }
 
   static fromRow(row) {
-    return new Building(row.id, row.address, row.nickname);
+    return new Building(row.id, row.address, row.nickname, row.building_type);
   }
 
   addUnit(unit) {
