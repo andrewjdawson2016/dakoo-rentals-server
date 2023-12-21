@@ -12,6 +12,7 @@ app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use("/buildings", routers.buildingsRouter);
 app.use("/leases", routers.leasesRouter);
+app.use("/expenses", routers.expensesRouter);
 app.use("/tenants", routers.tenantRouter);
 app.use("/lease_notes", routers.leaseNoteRouter);
 app.use("/lease_events", routers.leaseEventRouter);
