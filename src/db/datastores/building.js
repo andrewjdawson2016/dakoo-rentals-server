@@ -15,14 +15,20 @@ const BuildingQueries = {
     return QueryHelpers.delete(`DELETE FROM building WHERE id = $1`, [id]);
   },
 
-  insert: async (address, nickname, buildingType, unitNumbers) => {
+  insert: async (
+    address,
+    nickname,
+    buildingType,
+    firstRentalMonth,
+    unitNumbers
+  ) => {
     const client = await pool.connect();
     try {
       await client.query(`BEGIN`);
       const buildingResult = await QueryHelpers.insertWithClient(
         client,
-        `INSERT INTO building (address, nickname, building_type) VALUES ($1, $2, $3) RETURNING id`,
-        [address, nickname, buildingType],
+        `INSERT INTO building (address, nickname, building_type, first_rental_month) VALUES ($1, $2, $3, $4) RETURNING id`,
+        [address, nickname, buildingType, firstRentalMonth],
         "building already exists"
       );
       const buildingId = buildingResult.rows[0].id;

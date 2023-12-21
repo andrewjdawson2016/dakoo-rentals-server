@@ -25,6 +25,13 @@ const buildingSchema = Joi.object({
         "Building type must be either 'SINGLE_FAMILY' or 'MULTI_FAMILY'.",
       "any.required": "Building type is required.",
     }),
+  first_rental_month: Joi.string()
+    .pattern(/^\d{4}-\d{2}$/)
+    .required()
+    .messages({
+      "string.pattern.base": "first_rental_month must be in YYYY-MM format.",
+      "any.required": "first_rental_month is required.",
+    }),
   unit_numbers: Joi.array()
     .items(
       Joi.string()
@@ -93,6 +100,7 @@ router.post("/", async (req, res) => {
       req.body.address,
       req.body.nickname,
       req.body.building_type,
+      req.body.first_rental_month,
       req.body.unit_numbers
     );
     return res.status(201).send();

@@ -6,6 +6,7 @@ describe("Building Schema Validation through validateNewBuilding", () => {
     nickname: "Main Building",
     building_type: "SINGLE_FAMILY",
     unit_numbers: [],
+    first_rental_month: "2023-01",
   };
 
   describe("address", () => {
@@ -68,6 +69,27 @@ describe("Building Schema Validation through validateNewBuilding", () => {
 
     it("should require building type", () => {
       const { building_type, ...rest } = validBuilding;
+      const result = validateNewBuilding(rest);
+      expect(result.error).toBeDefined();
+    });
+  });
+
+  describe("first_rental_month", () => {
+    it("should accept a valid first_rental_month", () => {
+      const result = validateNewBuilding(validBuilding);
+      expect(result.error).toBeUndefined();
+    });
+
+    it("should reject an invalid first_rental_month format", () => {
+      const result = validateNewBuilding({
+        ...validBuilding,
+        first_rental_month: "01-2023",
+      });
+      expect(result.error).toBeDefined();
+    });
+
+    it("should require first_rental_month", () => {
+      const { first_rental_month, ...rest } = validBuilding;
       const result = validateNewBuilding(rest);
       expect(result.error).toBeDefined();
     });
