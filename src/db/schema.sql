@@ -18,7 +18,7 @@ CREATE TABLE expense (
     month_year DATE NOT NULL,
     fixed_amount INT NOT NULL,
     variable_amount INT NOT NULL,
-    note TEXT NOT NULL
+    note TEXT DEFAULT ""
 )
 
 CREATE TABLE lease (

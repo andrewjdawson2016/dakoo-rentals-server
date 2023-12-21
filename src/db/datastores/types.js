@@ -22,16 +22,30 @@ class AlreadyExistsError extends Error {
 }
 
 class Building {
-  constructor(id, address, nickname, building_type, units = []) {
+  constructor(
+    id,
+    address,
+    nickname,
+    building_type,
+    first_rental_month,
+    units = []
+  ) {
     this.id = id;
     this.address = address;
     this.nickname = nickname;
     this.building_type = building_type;
+    this.first_rental_month = first_rental_month;
     this.units = units;
   }
 
   static fromRow(row) {
-    return new Building(row.id, row.address, row.nickname, row.building_type);
+    return new Building(
+      row.id,
+      row.address,
+      row.nickname,
+      row.building_type,
+      row.first_rental_month
+    );
   }
 
   addUnit(unit) {
@@ -101,6 +115,35 @@ class Lease {
 
   addTenant(tenant) {
     this.tenants.push(tenant);
+  }
+}
+
+class Expense {
+  constructor(
+    id,
+    building_id,
+    month_year,
+    fixed_amount,
+    variable_amount,
+    note
+  ) {
+    this.id = id;
+    this.building_id = building_id;
+    this.month_year = month_year;
+    this.fixed_amount = fixed_amount;
+    this.variable_amount = variable_amount;
+    this.note = note;
+  }
+
+  static fromRow(row) {
+    return new Expense(
+      row.id,
+      row.building_id,
+      row.month_year,
+      row.fixed_amount,
+      row.variable_amount,
+      row.note
+    );
   }
 }
 
