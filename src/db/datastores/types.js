@@ -28,7 +28,8 @@ class Building {
     nickname,
     building_type,
     first_rental_month,
-    units = []
+    units = [],
+    expenses = []
   ) {
     this.id = id;
     this.address = address;
@@ -36,6 +37,7 @@ class Building {
     this.building_type = building_type;
     this.first_rental_month = first_rental_month;
     this.units = units;
+    this.expenses = expenses;
   }
 
   static fromRow(row) {
@@ -50,6 +52,10 @@ class Building {
 
   addUnit(unit) {
     this.units.push(unit);
+  }
+
+  addExpense(expense) {
+    this.expenses.push(expenses);
   }
 }
 
@@ -203,6 +209,7 @@ module.exports = {
   LeaseNote,
   LeaseEvent,
   Lease,
+  Expense,
   Tenant,
   Building,
 };

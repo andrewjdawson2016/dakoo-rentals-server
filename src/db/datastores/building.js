@@ -2,6 +2,7 @@ const {
   Building,
   Unit,
   Lease,
+  Expense,
   LeaseEvent,
   LeaseNote,
   Tenant,
@@ -67,6 +68,15 @@ const BuildingQueries = {
 
       const buildingRow = buildingQueryResult.rows[0];
       const building = Building.fromRow(buildingRow);
+
+      const expenseQueryResult = await client.query(
+        `SELECT * FROM expense WHERE building_id = $1 ORDER BY month_year DESC`,
+        [id]
+      );
+
+      for (const expense of expenseQueryResult.rows) {
+        building.addExpense(Expense.fromRow(expense));
+      }
 
       const unitQueryResult = await client.query(
         `SELECT * FROM unit WHERE building_id = $1 ORDER BY unit_number ASC`,
