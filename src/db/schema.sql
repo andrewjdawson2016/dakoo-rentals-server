@@ -3,7 +3,7 @@ CREATE TABLE building (
     address VARCHAR(255) NOT NULL UNIQUE,
     nickname VARCHAR(255) NOT NULL UNIQUE,
     building_type VARCHAR(15) NOT NULL CHECK (building_type IN ('SINGLE_FAMILY', 'MULTI_FAMILY')),
-    first_rental_month DATE NOT NULL,
+    first_rental_month DATE NOT NULL
 );
 
 CREATE TABLE unit (
@@ -18,8 +18,8 @@ CREATE TABLE expense (
     month_year DATE NOT NULL,
     fixed_amount INT NOT NULL,
     variable_amount INT NOT NULL,
-    note TEXT DEFAULT ""
-)
+    note TEXT DEFAULT ''
+);
 
 CREATE TABLE lease (
     id SERIAL PRIMARY KEY,
