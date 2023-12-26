@@ -55,7 +55,7 @@ class Building {
   }
 
   addExpense(expense) {
-    this.expenses.push(expenses);
+    this.expenses.push(expense);
   }
 }
 

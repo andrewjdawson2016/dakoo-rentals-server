@@ -7,9 +7,8 @@ const ExpenseQueries = {
 
   insert: async (buildingId, monthYear, fixedAmount, variableAmount, note) => {
     return QueryHelpers.insert(
-      `INSERT INTO expense (building_id, month_year, fixed_amount, variable_amount, note) VALUES ($1, $2, $3, $4, $5)`[
-        (buildingId, monthYear, fixedAmount, variableAmount, note)
-      ],
+      `INSERT INTO expense (building_id, month_year, fixed_amount, variable_amount, note) VALUES ($1, $2, $3, $4, $5)`,
+      [buildingId, monthYear, fixedAmount, variableAmount, note],
       "expense already exists"
     );
   },
