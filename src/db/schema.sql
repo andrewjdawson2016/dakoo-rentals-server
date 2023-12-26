@@ -3,7 +3,7 @@ CREATE TABLE building (
     address VARCHAR(255) NOT NULL UNIQUE,
     nickname VARCHAR(255) NOT NULL UNIQUE,
     building_type VARCHAR(15) NOT NULL CHECK (building_type IN ('SINGLE_FAMILY', 'MULTI_FAMILY')),
-    first_rental_month DATE NOT NULL
+    first_rental_month VARCHAR(7) NOT NULL
 );
 
 CREATE TABLE unit (
@@ -15,7 +15,7 @@ CREATE TABLE unit (
 CREATE TABLE expense (
     id SERIAL PRIMARY KEY,
     building_id INT NOT NULL REFERENCES building(id) ON DELETE CASCADE,
-    month_year DATE NOT NULL,
+    month_year VARCHAR(7) NOT NULL,
     fixed_amount INT NOT NULL,
     variable_amount INT NOT NULL,
     note TEXT DEFAULT ''
