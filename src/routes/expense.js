@@ -18,14 +18,14 @@ const expenseSchema = Joi.object({
       "string.pattern.base": "month_year must be in YYYY-MM format.",
       "any.required": "month_year is required.",
     }),
-  fixed_amount: Joi.number().positive().required().messages({
+  fixed_amount: Joi.number().min(0).required().messages({
     "number.base": "Invalid fixed_amount.",
-    "number.positive": "Invalid fixed_amount.",
+    "number.min": "fixed_amount cannot be negative.",
     "any.required": "fixed_amount is required.",
   }),
-  variable_amount: Joi.number().positive().required().messages({
+  variable_amount: Joi.number().min(0).required().messages({
     "number.base": "Invalid variable_amount.",
-    "number.positive": "Invalid variable_amount.",
+    "number.min": "variable_amount cannot be negative.",
     "any.required": "variable_amount is required.",
   }),
   note: Joi.string().allow(""),
