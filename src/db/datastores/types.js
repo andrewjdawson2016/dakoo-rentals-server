@@ -129,7 +129,7 @@ class Expense {
     this.id = id;
     this.building_id = building_id;
     this.month_year = month_year;
-    this.amont = amount;
+    this.amount = amount;
     this.note = note;
   }
 
