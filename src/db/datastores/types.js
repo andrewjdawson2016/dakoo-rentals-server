@@ -125,19 +125,11 @@ class Lease {
 }
 
 class Expense {
-  constructor(
-    id,
-    building_id,
-    month_year,
-    fixed_amount,
-    variable_amount,
-    note
-  ) {
+  constructor(id, building_id, month_year, amount, note) {
     this.id = id;
     this.building_id = building_id;
     this.month_year = month_year;
-    this.fixed_amount = fixed_amount;
-    this.variable_amount = variable_amount;
+    this.amont = amount;
     this.note = note;
   }
 
@@ -146,8 +138,7 @@ class Expense {
       row.id,
       row.building_id,
       row.month_year,
-      row.fixed_amount,
-      row.variable_amount,
+      row.amount,
       row.note
     );
   }

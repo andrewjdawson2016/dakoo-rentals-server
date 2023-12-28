@@ -18,15 +18,10 @@ const expenseSchema = Joi.object({
       "string.pattern.base": "month_year must be in YYYY-MM format.",
       "any.required": "month_year is required.",
     }),
-  fixed_amount: Joi.number().min(0).required().messages({
-    "number.base": "Invalid fixed_amount.",
-    "number.min": "fixed_amount cannot be negative.",
-    "any.required": "fixed_amount is required.",
-  }),
-  variable_amount: Joi.number().min(0).required().messages({
-    "number.base": "Invalid variable_amount.",
-    "number.min": "variable_amount cannot be negative.",
-    "any.required": "variable_amount is required.",
+  amount: Joi.number().min(0).required().messages({
+    "number.base": "Invalid amount.",
+    "number.min": "amount cannot be negative.",
+    "any.required": "amount is required.",
   }),
   note: Joi.string().allow(""),
 });
@@ -47,8 +42,7 @@ router.post("/", async (req, res) => {
     await ExpenseQueries.insert(
       req.body.building_id,
       req.body.month_year,
-      req.body.fixed_amount,
-      req.body.variable_amount,
+      req.body.amount,
       req.body.note
     );
     return res.status(201).send();

@@ -4,8 +4,7 @@ describe("Expense Schema Validation through validateNewExpense", () => {
   const validExpense = {
     building_id: 1,
     month_year: "2023-01",
-    fixed_amount: 500,
-    variable_amount: 200,
+    amount: 500,
     note: "Monthly expense",
   };
 
@@ -51,43 +50,30 @@ describe("Expense Schema Validation through validateNewExpense", () => {
     });
   });
 
-  describe("fixed_amount", () => {
-    it("should accept a valid fixed_amount", () => {
+  describe("amount", () => {
+    it("should accept a valid amount", () => {
       const result = validateNewExpense(validExpense);
       expect(result.error).toBeUndefined();
     });
 
-    it("should reject a negative fixed_amount", () => {
+    it("should accept a zero amount", () => {
       const result = validateNewExpense({
         ...validExpense,
-        fixed_amount: -100,
+        amount: 0,
       });
-      expect(result.error).toBeDefined();
-    });
-
-    it("should require fixed_amount", () => {
-      const { fixed_amount, ...rest } = validExpense;
-      const result = validateNewExpense(rest);
-      expect(result.error).toBeDefined();
-    });
-  });
-
-  describe("variable_amount", () => {
-    it("should accept a valid variable_amount", () => {
-      const result = validateNewExpense(validExpense);
       expect(result.error).toBeUndefined();
     });
 
-    it("should reject a negative variable_amount", () => {
+    it("should reject a negative amount", () => {
       const result = validateNewExpense({
         ...validExpense,
-        variable_amount: -100,
+        amount: -100,
       });
       expect(result.error).toBeDefined();
     });
 
-    it("should require variable_amount", () => {
-      const { variable_amount, ...rest } = validExpense;
+    it("should require amount", () => {
+      const { amount, ...rest } = validExpense;
       const result = validateNewExpense(rest);
       expect(result.error).toBeDefined();
     });

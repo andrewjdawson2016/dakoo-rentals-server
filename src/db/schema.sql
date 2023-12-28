@@ -16,8 +16,7 @@ CREATE TABLE expense (
     id SERIAL PRIMARY KEY,
     building_id INT NOT NULL REFERENCES building(id) ON DELETE CASCADE,
     month_year VARCHAR(7) NOT NULL,
-    fixed_amount INT NOT NULL,
-    variable_amount INT NOT NULL,
+    amount INT NOT NULL,
     note TEXT DEFAULT ''
 );
 
