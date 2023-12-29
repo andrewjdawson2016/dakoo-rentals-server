@@ -2,6 +2,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const routers = require("./routes");
 const cors = require("cors");
+const session = require("express-session");
 const passport = require("passport");
 const LocalStrategy = require("passport-local").Strategy;
 const { UserQueries } = require("./db/datastores/user");
@@ -12,6 +13,18 @@ const PORT = process.env.PORT || 3001;
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: "auto" },
+  })
+);
+
+app.use(passport.initialize());
+app.use(passport.session());
 
 passport.use(
   new LocalStrategy(
