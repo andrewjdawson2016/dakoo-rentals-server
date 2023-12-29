@@ -151,7 +151,7 @@ const BuildingQueries = {
 
       for (const buildingRow of selectBuildingsResult.rows) {
         const buildingId = buildingRow.id;
-        const building = await BuildingQueries.getById(buildingId);
+        const building = await BuildingQueries.getById(buildingId, userId);
         buildings.push(building);
       }
 
