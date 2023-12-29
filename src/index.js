@@ -85,7 +85,7 @@ app.use("/expenses", ensureAuthenticated, routers.expensesRouter);
 app.use("/tenants", ensureAuthenticated, routers.tenantRouter);
 app.use("/lease_notes", ensureAuthenticated, routers.leaseNoteRouter);
 app.use("/lease_events", ensureAuthenticated, routers.leaseEventRouter);
-app.use("/users", ensureAuthenticated, routers.usersRouter);
+app.use("/users", routers.usersRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
