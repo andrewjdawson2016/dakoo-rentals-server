@@ -46,7 +46,7 @@ router.patch("/", async (req, res) => {
   execution_date = execution_date === "" ? null : execution_date;
 
   try {
-    await LeaseEventQueries.setExecutionDate(id, execution_date);
+    await LeaseEventQueries.setExecutionDate(id, execution_date, req.user.id);
     return res.status(200).send();
   } catch (e) {
     const { message, status } = parseDatabaseError(e);

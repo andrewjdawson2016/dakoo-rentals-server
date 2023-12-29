@@ -105,7 +105,8 @@ router.post("/", async (req, res) => {
       price_per_month,
       is_renewal,
       note,
-      tenants
+      tenants,
+      req.user.id
     );
     return res.status(201).send();
   } catch (e) {
@@ -119,7 +120,7 @@ router.post("/", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    await LeaseQueries.delete(id);
+    await LeaseQueries.delete(id, req.user.id);
     return res.status(204).send();
   } catch (e) {
     const { message, status } = parseDatabaseError(e);

@@ -7,7 +7,7 @@ const router = express.Router();
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    await TenantQueries.delete(id);
+    await TenantQueries.delete(id, req.user.id);
     return res.status(204).send();
   } catch (e) {
     const { message, status } = parseDatabaseError(e);

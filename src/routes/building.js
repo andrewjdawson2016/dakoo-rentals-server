@@ -65,7 +65,7 @@ router.get("/:id", async (req, res) => {
   const { id } = req.params;
 
   try {
-    const building = await BuildingQueries.getById(id);
+    const building = await BuildingQueries.getById(id, req.user.id);
     return res.status(200).json({ building: building });
   } catch (e) {
     const { message, status } = parseDatabaseError(e);
@@ -77,7 +77,7 @@ router.get("/:id", async (req, res) => {
 
 router.get("/", async (req, res) => {
   try {
-    const buildings = await BuildingQueries.list();
+    const buildings = await BuildingQueries.list(req.user.id);
     return res.status(200).json({ buildings: buildings });
   } catch (e) {
     const { message, status } = parseDatabaseError(e);
@@ -101,7 +101,8 @@ router.post("/", async (req, res) => {
       req.body.nickname,
       req.body.building_type,
       req.body.first_rental_month,
-      req.body.unit_numbers
+      req.body.unit_numbers,
+      req.user.id
     );
     return res.status(201).send();
   } catch (e) {
@@ -115,7 +116,7 @@ router.post("/", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    await BuildingQueries.delete(id);
+    await BuildingQueries.delete(id, req.user.id);
     return res.status(204).send();
   } catch (e) {
     const { message, status } = parseDatabaseError(e);

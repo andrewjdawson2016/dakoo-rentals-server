@@ -43,7 +43,8 @@ router.post("/", async (req, res) => {
       req.body.building_id,
       req.body.month_year,
       req.body.amount,
-      req.body.note
+      req.body.note,
+      req.user.id
     );
     return res.status(201).send();
   } catch (e) {
@@ -57,7 +58,7 @@ router.post("/", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    await ExpenseQueries.delete(id);
+    await ExpenseQueries.delete(id, req.user.id);
     return res.status(204).send();
   } catch (e) {
     const { message, status } = parseDatabaseError(e);

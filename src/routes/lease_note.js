@@ -32,7 +32,7 @@ router.post("/", async (req, res) => {
   const { lease_id, note } = req.body;
 
   try {
-    await LeaseNoteQueries.insert(lease_id, note);
+    await LeaseNoteQueries.insert(lease_id, note, req.user.id);
     return res.status(201).send();
   } catch (e) {
     const { message, status } = parseDatabaseError(e);
@@ -45,7 +45,7 @@ router.post("/", async (req, res) => {
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    await LeaseNoteQueries.delete(id);
+    await LeaseNoteQueries.delete(id, req.user.id);
     return res.status(204).send();
   } catch (e) {
     const { message, status } = parseDatabaseError(e);
