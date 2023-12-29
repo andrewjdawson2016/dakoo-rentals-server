@@ -1,5 +1,6 @@
 const { pool } = require("../conn");
 const { User, NotFoundError } = require("./types");
+const { QueryHelpers } = require("./util");
 
 const UserQueries = {
   getByEmail: async (email) => {
@@ -31,6 +32,13 @@ const UserQueries = {
       console.error(e);
       throw e;
     }
+  },
+  insert: async (email, password, first_name, last_name) => {
+    return QueryHelpers.insert(
+      `INSERT INTO user (email, password, first_name, last_name) VALUES ($1, $2, $3, $4)`,
+      [email, password, first_name, last_name],
+      "user already exists"
+    );
   },
 };
 

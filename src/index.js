@@ -78,6 +78,7 @@ app.use("/expenses", routers.expensesRouter);
 app.use("/tenants", routers.tenantRouter);
 app.use("/lease_notes", routers.leaseNoteRouter);
 app.use("/lease_events", routers.leaseEventRouter);
+app.use("/users", routers.usersRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

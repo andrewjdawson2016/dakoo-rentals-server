@@ -4,6 +4,7 @@ const { router: tenantRouter } = require("./tenant");
 const { router: leaseNoteRouter } = require("./lease_note");
 const { router: leaseEventRouter } = require("./lease_event");
 const { router: expensesRouter } = require("./expense");
+const { router: usersRouter } = require("./user");
 
 module.exports = {
   buildingsRouter,
@@ -12,4 +13,5 @@ module.exports = {
   tenantRouter,
   leaseNoteRouter,
   leaseEventRouter,
+  usersRouter,
 };
