@@ -12,8 +12,11 @@ const { pool } = require("../conn");
 const { QueryHelpers } = require("./util");
 
 const BuildingQueries = {
-  delete: (id) => {
-    return QueryHelpers.delete(`DELETE FROM building WHERE id = $1`, [id]);
+  delete: (id, userId) => {
+    return QueryHelpers.delete(
+      `DELETE FROM building WHERE id = $1 AND user_id = $2`,
+      [id, userId]
+    );
   },
 
   insert: async (
@@ -21,15 +24,16 @@ const BuildingQueries = {
     nickname,
     buildingType,
     firstRentalMonth,
-    unitNumbers
+    unitNumbers,
+    userId
   ) => {
     const client = await pool.connect();
     try {
       await client.query(`BEGIN`);
       const buildingResult = await QueryHelpers.insertWithClient(
         client,
-        `INSERT INTO building (address, nickname, building_type, first_rental_month) VALUES ($1, $2, $3, $4) RETURNING id`,
-        [address, nickname, buildingType, firstRentalMonth],
+        `INSERT INTO building (address, nickname, building_type, first_rental_month, user_id) VALUES ($1, $2, $3, $4, $5) RETURNING id`,
+        [address, nickname, buildingType, firstRentalMonth, userId],
         "building already exists"
       );
       const buildingId = buildingResult.rows[0].id;
@@ -39,8 +43,8 @@ const BuildingQueries = {
       for (let unitNumber of unitNumbers) {
         await QueryHelpers.insertWithClient(
           client,
-          `INSERT INTO unit (building_id, unit_number) VALUES ($1, $2)`,
-          [buildingId, unitNumber],
+          `INSERT INTO unit (building_id, unit_number, user_id) VALUES ($1, $2, $3)`,
+          [buildingId, unitNumber, userId],
           "unit already exists"
         );
       }
@@ -54,12 +58,12 @@ const BuildingQueries = {
     }
   },
 
-  getById: async (id) => {
+  getById: async (id, userId) => {
     const client = await pool.connect();
     try {
       const buildingQueryResult = await client.query(
-        `SELECT * FROM building WHERE id = $1`,
-        [id]
+        `SELECT * FROM building WHERE id = $1 AND user_id = $2`,
+        [id, userId]
       );
 
       if (buildingQueryResult.rows.length === 0) {
@@ -70,8 +74,8 @@ const BuildingQueries = {
       const building = Building.fromRow(buildingRow);
 
       const expenseQueryResult = await client.query(
-        `SELECT * FROM expense WHERE building_id = $1 ORDER BY month_year DESC`,
-        [id]
+        `SELECT * FROM expense WHERE building_id = $1 AND user_id = $2 ORDER BY month_year DESC`,
+        [id, userId]
       );
 
       for (const expense of expenseQueryResult.rows) {
@@ -79,15 +83,15 @@ const BuildingQueries = {
       }
 
       const unitQueryResult = await client.query(
-        `SELECT * FROM unit WHERE building_id = $1 ORDER BY unit_number ASC`,
-        [id]
+        `SELECT * FROM unit WHERE building_id = $1 AND user_id = $2 ORDER BY unit_number ASC`,
+        [id, userId]
       );
 
       for (const unitRow of unitQueryResult.rows) {
         const unit = Unit.fromRow(unitRow);
         const leaseQueryResult = await client.query(
-          `SELECT * FROM lease WHERE unit_id = $1 ORDER BY start_date DESC`,
-          [unitRow.id]
+          `SELECT * FROM lease WHERE unit_id = $1 AND user_id = $2 ORDER BY start_date DESC`,
+          [unitRow.id, userId]
         );
 
         for (const leaseRow of leaseQueryResult.rows) {
@@ -96,25 +100,26 @@ const BuildingQueries = {
           const tenantLeaseQueryResult = await client.query(
             `SELECT tenant.* FROM tenant 
              JOIN tenant_lease ON tenant.id = tenant_lease.tenant_id 
-             WHERE tenant_lease.lease_id = $1 
+             WHERE tenant_lease.lease_id = $1
+             AND tenant_lease.user_id = $2 
              ORDER BY tenant.name DESC`,
-            [leaseRow.id]
+            [leaseRow.id, userId]
           );
           for (const tenantRow of tenantLeaseQueryResult.rows) {
             lease.addTenant(Tenant.fromRow(tenantRow));
           }
 
           const leaseNoteQueryResult = await client.query(
-            `SELECT * FROM lease_note WHERE lease_id = $1 ORDER BY created_at ASC`,
-            [leaseRow.id]
+            `SELECT * FROM lease_note WHERE lease_id = $1 AND user_id = $2 ORDER BY created_at ASC`,
+            [leaseRow.id, userId]
           );
           for (const noteRow of leaseNoteQueryResult.rows) {
             lease.addLeaseNote(LeaseNote.fromRow(noteRow));
           }
 
           const leaseEventQueryResult = await client.query(
-            `SELECT * FROM lease_event WHERE lease_id = $1 ORDER BY due_date ASC`,
-            [leaseRow.id]
+            `SELECT * FROM lease_event WHERE lease_id = $1 AND user_id = $2 ORDER BY due_date ASC`,
+            [leaseRow.id, userId]
           );
           for (const eventRow of leaseEventQueryResult.rows) {
             lease.addLeaseEvent(LeaseEvent.fromRow(eventRow));
@@ -135,12 +140,13 @@ const BuildingQueries = {
     }
   },
 
-  list: async () => {
+  list: async (userId) => {
     const client = await pool.connect();
     try {
       const buildings = [];
       const selectBuildingsResult = await client.query(
-        `SELECT id FROM building ORDER BY address ASC`
+        `SELECT id FROM building WHERE user_id = $1 ORDER BY address ASC`,
+        [userId]
       );
 
       for (const buildingRow of selectBuildingsResult.rows) {

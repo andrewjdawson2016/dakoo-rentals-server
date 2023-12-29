@@ -11,18 +11,19 @@ const LeaseQueries = {
     pricePerMonth,
     isRenewal,
     note = null,
-    tenants = []
+    tenants = [],
+    userId
   ) => {
     const client = await pool.connect();
     try {
       await client.query(`BEGIN`);
-      const existingLeases = await getLeasesForUnit(client, unitId);
+      const existingLeases = await getLeasesForUnit(client, unitId, userId);
       validateNewLease(startDate, endDate, isRenewal, tenants, existingLeases);
 
       const leaseResult = await QueryHelpers.insertWithClient(
         client,
-        `INSERT INTO lease(unit_id, start_date, end_date, price_per_month, is_renewal) VALUES($1, $2, $3, $4, $5) RETURNING id`,
-        [unitId, startDate, endDate, pricePerMonth, isRenewal],
+        `INSERT INTO lease(unit_id, start_date, end_date, price_per_month, is_renewal, user_id) VALUES($1, $2, $3, $4, $5, $6) RETURNING id`,
+        [unitId, startDate, endDate, pricePerMonth, isRenewal, userId],
         "lease already exists"
       );
       const leaseId = leaseResult.rows[0].id;
@@ -30,8 +31,8 @@ const LeaseQueries = {
       if (note) {
         await QueryHelpers.insertWithClient(
           client,
-          `INSERT INTO lease_note (lease_id, note) VALUES ($1, $2)`,
-          [leaseId, note],
+          `INSERT INTO lease_note (lease_id, note, user_id) VALUES ($1, $2, $3)`,
+          [leaseId, note, userId],
           "note already exists"
         );
       }
@@ -40,8 +41,8 @@ const LeaseQueries = {
       for (let event of events) {
         await QueryHelpers.insertWithClient(
           client,
-          `INSERT INTO lease_event (lease_id, due_date, description) VALUES ($1, $2, $3)`,
-          [leaseId, event.date, event.description],
+          `INSERT INTO lease_event (lease_id, due_date, description, user_id) VALUES ($1, $2, $3, $4)`,
+          [leaseId, event.date, event.description, userId],
           "lease event already exists"
         );
       }
@@ -51,8 +52,8 @@ const LeaseQueries = {
         for (let tenantId of prevLease.tenantIds) {
           await QueryHelpers.insertWithClient(
             client,
-            `INSERT INTO tenant_lease (tenant_id, lease_id) VALUES ($1, $2)`,
-            [tenantId, leaseId],
+            `INSERT INTO tenant_lease (tenant_id, lease_id, user_id) VALUES ($1, $2, $3)`,
+            [tenantId, leaseId, userId],
             "tenant lease already exists"
           );
         }
@@ -60,16 +61,16 @@ const LeaseQueries = {
         for (let tenant of tenants) {
           const tenantInsertResult = await QueryHelpers.insertWithClient(
             client,
-            `INSERT INTO tenant (name, email) VALUES ($1, $2) RETURNING id`,
-            [tenant.name, tenant.email],
+            `INSERT INTO tenant (name, email, user_id) VALUES ($1, $2, $3) RETURNING id`,
+            [tenant.name, tenant.email, userId],
             "tenant already exists"
           );
 
           const tenantId = tenantInsertResult.rows[0].id;
           await QueryHelpers.insertWithClient(
             client,
-            `INSERT INTO tenant_lease (tenant_id, lease_id) VALUES ($1, $2)`,
-            [tenantId, leaseId],
+            `INSERT INTO tenant_lease (tenant_id, lease_id, user_id) VALUES ($1, $2, $3)`,
+            [tenantId, leaseId, userId],
             "tenant lease already exists"
           );
         }
@@ -83,8 +84,11 @@ const LeaseQueries = {
       client.release();
     }
   },
-  delete: (id) => {
-    return QueryHelpers.delete(`DELETE FROM lease WHERE id = $1`, [id]);
+  delete: (id, userId) => {
+    return QueryHelpers.delete(
+      `DELETE FROM lease WHERE id = $1 AND user_id = $2`,
+      [id, userId]
+    );
   },
 };
 
@@ -156,7 +160,7 @@ const validateNewLease = (
   }
 };
 
-const getLeasesForUnit = async (client, unitId) => {
+const getLeasesForUnit = async (client, unitId, userId) => {
   const query = `
       SELECT 
         l.start_date,
@@ -166,11 +170,12 @@ const getLeasesForUnit = async (client, unitId) => {
       FROM lease l
       LEFT JOIN tenant_lease tl ON l.id = tl.lease_id
       WHERE l.unit_id = $1
+      AND l.user_id = $2
       GROUP BY l.id
       ORDER BY l.start_date DESC;
     `;
 
-  const { rows } = await client.query(query, [unitId]);
+  const { rows } = await client.query(query, [unitId, userId]);
 
   return rows.map((row) => {
     return {
