@@ -72,13 +72,20 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
-app.use("/buildings", routers.buildingsRouter);
-app.use("/leases", routers.leasesRouter);
-app.use("/expenses", routers.expensesRouter);
-app.use("/tenants", routers.tenantRouter);
-app.use("/lease_notes", routers.leaseNoteRouter);
-app.use("/lease_events", routers.leaseEventRouter);
-app.use("/users", routers.usersRouter);
+const ensureAuthenticated = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+  res.status(401).send("User not authenticated");
+};
+
+app.use("/buildings", ensureAuthenticated, routers.buildingsRouter);
+app.use("/leases", ensureAuthenticated, routers.leasesRouter);
+app.use("/expenses", ensureAuthenticated, routers.expensesRouter);
+app.use("/tenants", ensureAuthenticated, routers.tenantRouter);
+app.use("/lease_notes", ensureAuthenticated, routers.leaseNoteRouter);
+app.use("/lease_events", ensureAuthenticated, routers.leaseEventRouter);
+app.use("/users", ensureAuthenticated, routers.usersRouter);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
