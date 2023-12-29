@@ -41,6 +41,24 @@ passport.use(
   )
 );
 
+passport.serializeUser(function (user, done) {
+  done(null, user.id);
+});
+
+passport.deserializeUser(async (id, done) => {
+  try {
+    const user = await UserQueries.getById(id);
+    done(null, {
+      id: user.id,
+      email: user.email,
+      firstName: user.first_name,
+      lastName: user.last_name,
+    });
+  } catch (err) {
+    done(err);
+  }
+});
+
 app.use("/buildings", routers.buildingsRouter);
 app.use("/leases", routers.leasesRouter);
 app.use("/expenses", routers.expensesRouter);
