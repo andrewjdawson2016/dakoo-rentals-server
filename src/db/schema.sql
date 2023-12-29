@@ -1,3 +1,12 @@
+CREATE TABLE app_user (
+    id SERIAL PRIMARY KEY,
+    email VARCHAR(255) UNIQUE,
+    password VARCHAR(255) NOT NULL,
+    first_name VARCHAR(255) NOT NULL,
+    last_name VARCHAR(255) NOT NULL,
+    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE building (
     id SERIAL PRIMARY KEY,
     address VARCHAR(255) NOT NULL UNIQUE,
@@ -64,16 +73,6 @@ CREATE TABLE tenant_lease (
     PRIMARY KEY (tenant_id, lease_id),
     user_id INTEGER REFERENCES users(id)
 );
-
-CREATE TABLE user (
-    id SERIAL PRIMARY KEY,
-    email VARCHAR(255) UNIQUE,
-    password VARCHAR(255) NOT NULL,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-
 
 CREATE INDEX idx_lease_event_due_date ON lease_event(due_date);
 CREATE INDEX idx_lease_start_date ON lease(start_date);
