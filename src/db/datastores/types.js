@@ -157,6 +157,28 @@ class LeaseNote {
   }
 }
 
+class User {
+  constructor(id, email, password, first_name, last_name, created_at) {
+    this.id = id;
+    this.email = email;
+    this.password = password;
+    this.first_name = first_name;
+    this.last_name = last_name;
+    this.created_at = created_at;
+  }
+
+  static fromRow(row) {
+    return new User(
+      row.id,
+      row.email,
+      row.password,
+      row.first_name,
+      row.last_name,
+      row.created_at
+    );
+  }
+}
+
 class LeaseEvent {
   constructor(id, lease_id, due_date, execution_date, description) {
     this.id = id;
@@ -203,4 +225,5 @@ module.exports = {
   Expense,
   Tenant,
   Building,
+  User,
 };
