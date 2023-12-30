@@ -29,7 +29,7 @@ app.use(
     resave: false,
     saveUninitialized: true,
     cookie: {
-      secure: true,
+      secure: "auto",
       sameSite: "none",
     },
   })
@@ -46,18 +46,10 @@ passport.use(
     },
     async function (email, password, done) {
       try {
-        console.log("andrew got email: ", email);
-        console.log("andrew got password: ", password);
         const user = await UserQueries.getByEmail(email);
-        console.log("andrew read user record: ", user.id);
-        console.log("andrew read user record: ", user.email);
-        console.log("andrew read user record: ", user.first_name);
-        console.log("andrew read user record: ", user.last_name);
         const validPassword = await bcrypt.compare(password, user.password);
-        console.log("andrew got validPassword: ", validPassword);
 
         if (validPassword) {
-          console.log("andrew got here 1");
           done(null, {
             id: user.id,
             email: user.email,
@@ -65,7 +57,6 @@ passport.use(
             lastName: user.last_name,
           });
         } else {
-          console.log("andrew got here 2");
           done(null, false, { message: "Incorrect password." });
         }
       } catch (err) {
