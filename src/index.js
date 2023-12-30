@@ -16,7 +16,7 @@ app.set("trust proxy", 1);
 app.use(
   cors({
     origin: process.env.FRONTEND_CLIENT,
-    credentials: "auto",
+    credentials: true,
   })
 );
 app.use(bodyParser.json());
