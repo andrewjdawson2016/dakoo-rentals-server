@@ -82,6 +82,11 @@ passport.deserializeUser(async (id, done) => {
 });
 
 app.use((req, res, next) => {
+  console.log("Request Origin:", req.get("Origin"));
+  next();
+});
+
+app.use((req, res, next) => {
   console.log("andrew got Cookies: ", req.cookies);
   console.log("andrew got Signed Cookies: ", req.signedCookies);
   next();
