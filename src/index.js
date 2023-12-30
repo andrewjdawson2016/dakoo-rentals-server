@@ -1,5 +1,6 @@
 const express = require("express");
 const bodyParser = require("body-parser");
+const cookieParser = require("cookie-parser");
 const bcrypt = require("bcrypt");
 const routers = require("./routes");
 const cors = require("cors");
@@ -18,6 +19,7 @@ app.use(
   })
 );
 app.use(bodyParser.json());
+app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
 
 app.use(
