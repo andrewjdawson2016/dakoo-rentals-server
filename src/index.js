@@ -82,7 +82,7 @@ const ensureAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   }
-  res.redirect("/login");
+  res.status(401).send("Unauthorized");
 };
 
 app.use("/buildings", ensureAuthenticated, routers.buildingsRouter);
