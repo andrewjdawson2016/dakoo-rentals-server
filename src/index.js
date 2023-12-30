@@ -44,6 +44,7 @@ passport.use(
         const validPassword = await bcrypt.compare(password, user.password);
 
         if (validPassword) {
+          console.log("andrew successfully got a valid password in login");
           done(null, {
             id: user.id,
             email: user.email,
@@ -78,10 +79,17 @@ passport.deserializeUser(async (id, done) => {
   }
 });
 
+app.use((req, res, next) => {
+  console.log("andrew got Cookies: ", req.cookies);
+  console.log("andrew got Signed Cookies: ", req.signedCookies);
+  next();
+});
+
 const ensureAuthenticated = (req, res, next) => {
   if (req.isAuthenticated()) {
     return next();
   }
+  console.log("andrew got error in ensureAuthenticated");
   res.status(401).send("Unauthorized");
 };
 
