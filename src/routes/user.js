@@ -25,7 +25,15 @@ router.post("/signup", async (req, res) => {
 });
 
 router.post("/login", passport.authenticate("local"), (req, res) => {
-  return res.send("Logged in successfully");
+  if (req.user) {
+    return res.json({
+      message: "Logged in successfully",
+      firstName: req.user.firstName,
+      lastName: req.user.lastName,
+    });
+  } else {
+    return res.status(401).json({ message: "Login failed" });
+  }
 });
 
 router.post("/logout", (req, res) => {
