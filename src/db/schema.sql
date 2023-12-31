@@ -18,7 +18,6 @@ CREATE TABLE building (
     UNIQUE(user_id, address)
 );
 
-
 CREATE TABLE unit (
     id SERIAL PRIMARY KEY,
     building_id INT NOT NULL REFERENCES building(id) ON DELETE CASCADE, 
