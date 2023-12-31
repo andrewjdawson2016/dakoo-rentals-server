@@ -9,12 +9,15 @@ CREATE TABLE app_user (
 
 CREATE TABLE building (
     id SERIAL PRIMARY KEY,
-    address VARCHAR(255) NOT NULL UNIQUE,
-    nickname VARCHAR(255) NOT NULL UNIQUE,
+    address VARCHAR(255) NOT NULL,
+    nickname VARCHAR(255) NOT NULL,
     building_type VARCHAR(15) NOT NULL CHECK (building_type IN ('SINGLE_FAMILY', 'MULTI_FAMILY')),
     first_rental_month VARCHAR(7) NOT NULL,
-    user_id INTEGER REFERENCES app_user(id)
+    user_id INTEGER REFERENCES app_user(id),
+    UNIQUE(user_id, nickname),
+    UNIQUE(user_id, address)
 );
+
 
 CREATE TABLE unit (
     id SERIAL PRIMARY KEY,
