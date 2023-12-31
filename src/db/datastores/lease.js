@@ -1,6 +1,6 @@
 const { pool } = require("../conn");
 const { DateTime } = require("luxon");
-const { ValidationError, NotFoundError } = require("./types");
+const { Building, ValidationError, NotFoundError } = require("./types");
 const { QueryHelpers } = require("./util");
 
 const LeaseQueries = {
@@ -17,8 +17,32 @@ const LeaseQueries = {
     const client = await pool.connect();
     try {
       await client.query(`BEGIN`);
+      const buildingQueryResult = await client.query(
+        `SELECT b.first_rental_month
+        FROM unit u
+        JOIN building b ON u.building_id = b.id
+        WHERE u.id = $1 AND u.user_id = $2;
+        `,
+        [unitId, userId]
+      );
+      if (buildingQueryResult.rows.length === 0) {
+        throw new NotFoundError(
+          "Failed to find building for unit with id: ",
+          unitId
+        );
+      }
+      const buildingRow = buildingQueryResult.rows[0];
+      const building = Building.fromRow(buildingRow);
+
       const existingLeases = await getLeasesForUnit(client, unitId, userId);
-      validateNewLease(startDate, endDate, isRenewal, tenants, existingLeases);
+      validateNewLease(
+        startDate,
+        endDate,
+        isRenewal,
+        tenants,
+        existingLeases,
+        building.first_rental_month
+      );
 
       const leaseResult = await QueryHelpers.insertWithClient(
         client,
@@ -108,7 +132,8 @@ const validateNewLease = (
   endDate,
   isRenewal,
   tenants,
-  existingLeases
+  existingLeases,
+  firstRentalMonth
 ) => {
   // check 1: combination of isRenewal and tenants is valid
   if (isRenewal && tenants.length > 0) {
@@ -155,6 +180,14 @@ const validateNewLease = (
     if (!prevLease.endDate.plus({ days: 1 }).equals(leaseStartDate)) {
       throw new ValidationError(
         "Renewal lease must start directly after previous lease"
+      );
+    }
+
+    // check 6: lease must start no earlier than firstRentalMonth
+    const firstRentalDate = DateTime.fromISO(`${firstRentalMonth}-01`);
+    if (leaseStartDate < firstRentalDate) {
+      throw new ValidationError(
+        `Lease start date cannot be earlier than the first rental month (${firstRentalMonth})`
       );
     }
   }
