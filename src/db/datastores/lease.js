@@ -182,14 +182,14 @@ const validateNewLease = (
         "Renewal lease must start directly after previous lease"
       );
     }
+  }
 
-    // check 6: lease must start no earlier than firstRentalMonth
-    const firstRentalDate = DateTime.fromISO(`${firstRentalMonth}-01`);
-    if (leaseStartDate < firstRentalDate) {
-      throw new ValidationError(
-        `Lease start date cannot be earlier than the first rental month (${firstRentalMonth})`
-      );
-    }
+  // check 6: lease must start no earlier than firstRentalMonth
+  const firstRentalDate = DateTime.fromISO(`${firstRentalMonth}-01`);
+  if (leaseStartDate < firstRentalDate) {
+    throw new ValidationError(
+      `Lease start date cannot be earlier than the first rental month (${firstRentalMonth})`
+    );
   }
 };
 
