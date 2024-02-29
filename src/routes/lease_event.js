@@ -26,6 +26,7 @@ const leaseEventSchema = Joi.object({
       "any.required": "execution_date is required.",
       "date.invalid": "execution_date is not a valid date.",
     }),
+  note: Joi.string().allow(""),
 });
 
 function validateNewLeaseEvent(body) {
@@ -41,12 +42,17 @@ router.patch("/", async (req, res) => {
     });
   }
 
-  let { id, execution_date } = value;
+  let { id, execution_date, note } = value;
 
   execution_date = execution_date === "" ? null : execution_date;
 
   try {
-    await LeaseEventQueries.setExecutionDate(id, execution_date, req.user.id);
+    await LeaseEventQueries.setExecutionDate(
+      id,
+      execution_date,
+      note,
+      req.user.id
+    );
     return res.status(200).send();
   } catch (e) {
     const { message, status } = parseDatabaseError(e);

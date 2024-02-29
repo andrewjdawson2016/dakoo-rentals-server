@@ -4,7 +4,6 @@ const {
   Lease,
   Expense,
   LeaseEvent,
-  LeaseNote,
   Tenant,
   NotFoundError,
 } = require("./types");
@@ -107,14 +106,6 @@ const BuildingQueries = {
           );
           for (const tenantRow of tenantLeaseQueryResult.rows) {
             lease.addTenant(Tenant.fromRow(tenantRow));
-          }
-
-          const leaseNoteQueryResult = await client.query(
-            `SELECT * FROM lease_note WHERE lease_id = $1 AND user_id = $2 ORDER BY created_at ASC`,
-            [leaseRow.id, userId]
-          );
-          for (const noteRow of leaseNoteQueryResult.rows) {
-            lease.addLeaseNote(LeaseNote.fromRow(noteRow));
           }
 
           const leaseEventQueryResult = await client.query(

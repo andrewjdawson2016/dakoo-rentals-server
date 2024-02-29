@@ -35,7 +35,6 @@ const leaseSchema = Joi.object({
     "boolean.base": "is_renewal must be a boolean.",
     "any.required": "is_renewal is required.",
   }),
-  note: Joi.string().allow(""),
   tenants: Joi.when("is_renewal", {
     is: true,
     then: Joi.any().forbidden(),
@@ -93,7 +92,6 @@ router.post("/", async (req, res) => {
     end_date,
     price_per_month,
     is_renewal,
-    note,
     tenants,
   } = req.body;
 
@@ -104,7 +102,6 @@ router.post("/", async (req, res) => {
       end_date,
       price_per_month,
       is_renewal,
-      note,
       tenants,
       req.user.id
     );

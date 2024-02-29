@@ -10,7 +10,6 @@ const LeaseQueries = {
     endDate,
     pricePerMonth,
     isRenewal,
-    note = null,
     tenants = [],
     userId
   ) => {
@@ -51,15 +50,6 @@ const LeaseQueries = {
         "lease already exists"
       );
       const leaseId = leaseResult.rows[0].id;
-
-      if (note) {
-        await QueryHelpers.insertWithClient(
-          client,
-          `INSERT INTO lease_note (lease_id, note, user_id) VALUES ($1, $2, $3)`,
-          [leaseId, note, userId],
-          "note already exists"
-        );
-      }
 
       const events = getLeaseEvents(startDate, endDate);
       for (let event of events) {

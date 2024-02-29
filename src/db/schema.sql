@@ -45,21 +45,14 @@ CREATE TABLE lease (
     user_id INTEGER REFERENCES app_user(id)
 );
 
-CREATE TABLE lease_note (
-    id SERIAL PRIMARY KEY,
-    lease_id INT NOT NULL REFERENCES lease(id) ON DELETE CASCADE,
-    note TEXT NOT NULL,
-    created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    user_id INTEGER REFERENCES app_user(id)
-);
-
 CREATE TABLE lease_event (
     id SERIAL PRIMARY KEY,
     lease_id INT NOT NULL REFERENCES lease(id) ON DELETE CASCADE,
     due_date DATE NOT NULL,
     execution_date DATE,
     description VARCHAR(10) NOT NULL CHECK (description IN ('START', 'SIX_MONTH', 'TWO_MONTH', 'ONE_MONTH', 'END')),
-    user_id INTEGER REFERENCES app_user(id)
+    user_id INTEGER REFERENCES app_user(id),
+    note TEXT DEFAULT '',
 );
 
 CREATE TABLE tenant (

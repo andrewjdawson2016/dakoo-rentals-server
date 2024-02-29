@@ -86,7 +86,6 @@ class Lease {
     price_per_month,
     is_renewal,
     tenants = [],
-    leaseNotes = [],
     leaseEvents = []
   ) {
     this.id = id;
@@ -96,7 +95,6 @@ class Lease {
     this.price_per_month = price_per_month;
     this.is_renewal = is_renewal;
     this.tenants = tenants;
-    this.leaseNotes = leaseNotes;
     this.leaseEvents = leaseEvents;
   }
 
@@ -109,10 +107,6 @@ class Lease {
       row.price_per_month,
       row.is_renewal
     );
-  }
-
-  addLeaseNote(leaseNote) {
-    this.leaseNotes.push(leaseNote);
   }
 
   addLeaseEvent(leaseEvent) {
@@ -144,19 +138,6 @@ class Expense {
   }
 }
 
-class LeaseNote {
-  constructor(id, lease_id, note, created_at) {
-    this.id = id;
-    this.lease_id = lease_id;
-    this.note = note;
-    this.created_at = created_at;
-  }
-
-  static fromRow(row) {
-    return new LeaseNote(row.id, row.lease_id, row.note, row.created_at);
-  }
-}
-
 class User {
   constructor(id, email, password, first_name, last_name, created_at) {
     this.id = id;
@@ -180,7 +161,7 @@ class User {
 }
 
 class LeaseEvent {
-  constructor(id, lease_id, due_date, execution_date, description) {
+  constructor(id, lease_id, due_date, execution_date, description, note) {
     this.id = id;
     this.lease_id = lease_id;
     this.due_date = DateTime.fromJSDate(due_date).toISODate();
@@ -188,6 +169,7 @@ class LeaseEvent {
       ? DateTime.fromJSDate(execution_date).toISODate()
       : "";
     this.description = description;
+    this.note = note;
   }
 
   static fromRow(row) {
@@ -196,7 +178,8 @@ class LeaseEvent {
       row.lease_id,
       row.due_date,
       row.execution_date,
-      row.description
+      row.description,
+      row.note
     );
   }
 }
@@ -219,7 +202,6 @@ module.exports = {
   AlreadyExistsError,
   ValidationError,
   Unit,
-  LeaseNote,
   LeaseEvent,
   Lease,
   Expense,

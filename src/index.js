@@ -95,7 +95,6 @@ app.use("/buildings", ensureAuthenticated, routers.buildingsRouter);
 app.use("/leases", ensureAuthenticated, routers.leasesRouter);
 app.use("/expenses", ensureAuthenticated, routers.expensesRouter);
 app.use("/tenants", ensureAuthenticated, routers.tenantRouter);
-app.use("/lease_notes", ensureAuthenticated, routers.leaseNoteRouter);
 app.use("/lease_events", ensureAuthenticated, routers.leaseEventRouter);
 app.use("/users", routers.usersRouter);
 
