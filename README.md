@@ -48,3 +48,6 @@ curl http://localhost:3000/properties
 curl http://localhost:3000/properties/3
 curl -X DELETE http://localhost:3000/properties/3
 ```
+
+## Logging Into Database
+heroku pg:psql --app dakoo-rentals-server
