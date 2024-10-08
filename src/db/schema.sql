@@ -58,7 +58,7 @@ CREATE TABLE lease_event (
 CREATE TABLE tenant (
     id SERIAL PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE,
+    email VARCHAR(255) NOT NULL,
     user_id INTEGER REFERENCES app_user(id)
 );
 
